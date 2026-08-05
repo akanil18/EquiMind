@@ -15,7 +15,7 @@ graph TD
     
     Planner --> DAG[Dynamic Research DAG Pipeline]
 
-    subgraph LLM Provider Layer (Model Agnostic)
+    subgraph LLM_Layer ["LLM Provider Layer (Model Agnostic)"]
         UnifiedLLM[LLMProvider Abstraction Interface]
         UnifiedLLM --> OpenAI[OpenAI Adapter: gpt-4o, o3-mini]
         UnifiedLLM --> Anthropic[Anthropic Adapter: claude-3-5-sonnet]
@@ -31,7 +31,7 @@ graph TD
     DAG --> MacroTeam[Macroeconomic Team]
     DAG --> WebTeam[Web & Alternative Signals Team]
 
-    subgraph Deterministic Quantitative Engine (Pure Math - No LLM)
+    subgraph Quant_Engine ["Deterministic Quantitative Engine"]
         TechEngine[Technical Indicators: RSI, MACD, BB, ATR, S/R]
         FundQuant[Fundamental Metrics: PE, PB, ROE, FCF, Z-Score, F-Score]
         RiskEngine[Risk Engine: VaR 95%, CVaR, Sharpe, Sortino, MaxDD]
@@ -42,7 +42,7 @@ graph TD
     
     TechEngine & FundQuant & RiskEngine --> EvidenceGraph[Structured Evidence Graph]
     
-    subgraph Context Optimization & Memory
+    subgraph Context_Memory ["Context Optimization & Memory"]
         EvidenceGraph --> ContextCompressor[Context Optimization & Compressor Engine]
         ContextCompressor --> Deduplication[Exact MD5 & Jaccard Fuzzy Clustering]
         ContextCompressor --> Ranking[Time-Decay e^-0.05t & Relevance Scoring]
@@ -53,7 +53,7 @@ graph TD
 
     BudgetPacker --> DebateEngine[Adversarial Investment Committee]
     
-    subgraph Investment Committee
+    subgraph Committee ["Investment Committee"]
         DebateEngine --> BullAgent[Bull Research Agent]
         DebateEngine --> BearAgent[Bear Research Agent]
         BullAgent & BearAgent --> JudgeAgent[Debate Judge Agent]
