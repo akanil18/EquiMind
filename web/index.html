@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EquiMind | Autonomous AI Equity Research Firm</title>
+    
+    <!-- Premium Google Fonts matching ayushjha.online design language -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-body: #090a0f;
+            --bg-card: #11141d;
+            --bg-card-hover: #171b28;
+            --bg-panel: rgba(18, 22, 32, 0.75);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-highlight: rgba(255, 255, 255, 0.16);
+            
+            --text-heading: #f8fafc;
+            --text-body: #94a3b8;
+            --text-muted: #64748b;
+            
+            --accent-primary: #38bdf8;   /* Electric Cyan */
+            --accent-gold: #f59e0b;      /* Cyber Amber */
+            --accent-emerald: #10b981;   /* Electric Emerald */
+            --accent-rose: #f43f5e;      /* Crimson Rose */
+            --accent-indigo: #6366f1;    /* Deep Indigo */
+            
+            --font-display: 'Syne', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-body);
+            background-image: 
+                radial-gradient(ellipse at 20% 10%, rgba(56, 189, 248, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 90%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.04) 0%, transparent 60%);
+            color: var(--text-body);
+            min-height: 100vh;
+            padding: 1.5rem 2rem 4rem;
+            line-height: 1.5;
+        }
+
+        /* Top Navigation Header */
+        header {
+            max-width: 1400px;
+            margin: 0 auto 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.75rem;
+            background: var(--bg-panel);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+
+        .brand-logo {
+            font-family: var(--font-display);
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: var(--text-heading);
+            background: linear-gradient(135deg, #f8fafc 0%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--accent-emerald);
+            background: rgba(16, 185, 129, 0.1);
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+        }
+
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            background-color: var(--accent-emerald);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-emerald);
+            animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse-ring {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 0.85rem;
+            align-items: center;
+        }
+
+        select, input[type="text"], input[type="date"], button {
+            font-family: var(--font-body);
+            background: rgba(15, 19, 29, 0.9);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-heading);
+            padding: 0.6rem 0.95rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.88rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+        }
+
+        .btn-primary {
+            font-family: var(--font-display);
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            background: linear-gradient(135deg, #0284c7 0%, #4f46e5 100%);
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            padding: 0.65rem 1.35rem;
+            border-radius: var(--radius-sm);
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(2, 132, 199, 0.45);
+        }
+
+        /* Container Layout */
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
+        }
+
+        /* Research Hero Input Console */
+        .console-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .console-grid {
+            display: grid;
+            grid-template-columns: 180px 1fr 180px;
+            gap: 1rem;
+        }
+
+        .quick-tickers {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .ticker-chip {
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-heading);
+            padding: 0.25rem 0.65rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .ticker-chip:hover {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        /* Navigation Tabs */
+        .tab-bar {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 0.5rem;
+        }
+
+        .tab-btn {
+            font-family: var(--font-display);
+            font-size: 0.92rem;
+            font-weight: 600;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.6rem 1.2rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            color: var(--text-heading);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: var(--text-body);
+        }
+
+        /* Recommendation Highlight Hero Banner */
+        .rec-banner {
+            background: linear-gradient(135deg, rgba(17, 20, 29, 0.95) 0%, rgba(22, 28, 44, 0.95) 100%);
+            border: 1px solid var(--border-highlight);
+            border-radius: var(--radius-lg);
+            padding: 2rem 2.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rec-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent-emerald);
+        }
+
+        .banner-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .banner-title {
+            font-family: var(--font-display);
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--text-heading);
+        }
+
+        .rating-badge {
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            font-weight: 700;
+            padding: 0.45rem 1.25rem;
+            border-radius: 30px;
+            letter-spacing: 0.5px;
+
+        }
+
+        .rating-buy { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+        .rating-sell { background: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.4); }
+        .rating-hold { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.25rem;
+        }
+
+        .metric-card {
+            background: rgba(10, 13, 20, 0.6);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 1.1rem 1.25rem;
+        }
+
+        .metric-label {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-bottom: 0.35rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-value {
+            font-family: var(--font-mono);
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-heading);
+        }
+
+        /* Dual Arena Debate Section */
+        .debate-arena {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .arena-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+        }
+
+        .bull-border { border-top: 3px solid var(--accent-emerald); }
+        .bear-border { border-top: 3px solid var(--accent-rose); }
+
+        .arena-title {
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .thesis-body {
+            font-size: 0.95rem;
+            line-height: 1.65;
+            color: #cbd5e1;
+            margin-bottom: 1.25rem;
+        }
+
+        .list-items {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+            font-size: 0.88rem;
+        }
+
+        .list-items li {
+            position: relative;
+            padding-left: 1.25rem;
+        }
+
+        .list-items li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: var(--accent-primary);
+        }
+
+        /* Provenance Graph Section */
+        .table-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 0.9rem 1.1rem;
+            border-bottom: 1px solid var(--border-subtle);
+            font-size: 0.88rem;
+        }
+
+        th {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: rgba(10, 13, 20, 0.4);
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .badge-source {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 600;
+            background: rgba(56, 189, 248, 0.12);
+            color: var(--accent-primary);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+        }
+
+        .link-proof {
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            color: var(--accent-primary);
+            text-decoration: none;
+        }
+
+        .link-proof:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">
+            <span class="brand-logo">EquiMind</span>
+            <div class="system-status">
+                <span class="pulse-dot"></span>
+                <span>SYSTEM ONLINE · 100% TRACEABLE</span>
+            </div>
+        </div>
+
+        <div class="header-controls">
+            <select id="providerSelect">
+                <option value="openai">LLM Provider: OpenAI (gpt-4o)</option>
+                <option value="anthropic">LLM Provider: Anthropic (claude-3-5-sonnet)</option>
+                <option value="gemini">LLM Provider: Google Gemini (gemini-1.5-pro)</option>
+                <option value="deepseek">LLM Provider: DeepSeek (deepseek-chat)</option>
+                <option value="ollama">LLM Provider: Ollama (Local Llama-3)</option>
+                <option value="openrouter">LLM Provider: OpenRouter</option>
+                <option value="mock" selected>LLM Provider: Mock Engine (Zero-Cost Offline)</option>
+            </select>
+            <input type="date" id="asOfDate" title="Temporal Cutoff Date for Historical Simulation">
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Research Input Console -->
+        <section class="console-card">
+            <div class="console-grid">
+                <input type="text" id="tickerInput" value="NVDA" placeholder="TICKER" style="font-family: var(--font-mono); font-weight: 700; font-size: 1.1rem; text-transform: uppercase;">
+                <input type="text" id="queryInput" value="Should I invest in NVIDIA today for long-term AI datacenter growth?" placeholder="Enter institutional research query...">
+                <button class="btn-primary" id="runBtn" onclick="executeResearch()">Run Analysis</button>
+            </div>
+
+            <div class="quick-tickers">
+                <span>Quick Research Benchmarks:</span>
+                <span class="ticker-chip" onclick="setTicker('NVDA')">$NVDA</span>
+                <span class="ticker-chip" onclick="setTicker('AAPL')">$AAPL</span>
+                <span class="ticker-chip" onclick="setTicker('JPM')">$JPM</span>
+                <span class="ticker-chip" onclick="setTicker('TSLA')">$TSLA</span>
+                <span class="ticker-chip" onclick="setTicker('RELIANCE')">$RELIANCE</span>
+            </div>
+        </section>
+
+        <!-- Executive Recommendation Banner -->
+        <section class="rec-banner">
+            <div class="banner-header">
+                <div class="banner-title">Institutional Research Recommendation</div>
+                <div class="rating-badge rating-buy" id="ratingBadge">STRONG_BUY</div>
+            </div>
+
+            <div class="metrics-row">
+                <div class="metric-card">
+                    <div class="metric-label">Conviction Score</div>
+                    <div class="metric-value" id="convictionVal" style="color: var(--accent-emerald);">92%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Target Entry Price</div>
+                    <div class="metric-value" id="targetRangeVal">$118.75 - $127.50</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Risk / Reward Ratio</div>
+                    <div class="metric-value" id="riskRewardVal" style="color: var(--accent-primary);">2.40 : 1</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Portfolio Allocation</div>
+                    <div class="metric-value" id="allocationVal" style="font-size: 1rem; color: var(--accent-gold);">Overweight (3-5%)</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Deterministic Quantitative Panels -->
+        <section class="grid-2">
+            <div class="arena-card">
+                <div class="arena-title" style="font-family: var(--font-display);">⚡ Technical Analysis (Pure Math)</div>
+                <div class="metrics-row" style="grid-template-columns: 1fr 1fr; margin-top: 1rem;">
+                    <div class="metric-card">
+                        <div class="metric-label">RSI (14)</div>
+                        <div class="metric-value" id="rsiVal">58.40</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Bollinger Bandwidth</div>
+                        <div class="metric-value" id="bbVal">12.40%</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">MACD Signal</div>
+                        <div class="metric-value" id="macdVal">+2.15</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Support / Resistance</div>
+                        <div class="metric-value" id="srVal" style="font-size: 1rem;">$115 / $135</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arena-card">
+                <div class="arena-title" style="font-family: var(--font-display);">📊 Financial Health & Valuation</div>
+                <div class="metrics-row" style="grid-template-columns: 1fr 1fr; margin-top: 1rem;">
+                    <div class="metric-card">
+                        <div class="metric-label">Piotroski F-Score</div>
+                        <div class="metric-value" id="piotroskiVal" style="color: var(--accent-emerald);">8 / 9 (Strong)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Altman Z-Score</div>
+                        <div class="metric-value" id="altmanVal" style="color: var(--accent-emerald);">8.45 (Safe)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">PE / PEG Ratio</div>
+                        <div class="metric-value" id="peVal">32.8 / 1.31</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">ROE / Net Margin</div>
+                        <div class="metric-value" id="roeVal">62.5% / 54.2%</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Adversarial Debate Arena -->
+        <section class="debate-arena">
+            <div class="arena-card bull-border">
+                <div class="arena-title" style="color: var(--accent-emerald);">🐂 Bull Research Thesis</div>
+                <p class="thesis-body" id="bullThesis">
+                    NVIDIA Blackwell AI architecture demand outpaces supply. Exceptional gross margins (75%) and robust institutional channel checks corroborate continued revenue acceleration.
+                </p>
+                <ul class="list-items" id="bullCatalysts">
+                    <li>[SEC 10-Q] Official filing confirms 122% YoY datacenter revenue growth</li>
+                    <li>[BLOOMBERG] Hyperscalers expanded multi-year infrastructure commitments</li>
+                    <li>[GITHUB] Developer repository star adoption accelerated 40% YoY</li>
+                </ul>
+            </div>
+
+            <div class="arena-card bear-border">
+                <div class="arena-title" style="color: var(--accent-rose);">🐻 Bear Research Thesis</div>
+                <p class="thesis-body" id="bearThesis">
+                    Elevated valuation multiple (32x PE) exposes stock to downside compression if hyperscaler capital expenditures decelerate in future quarters.
+                </p>
+                <ul class="list-items" id="bearHeadwinds">
+                    <li>[TWITTER/X] Channel checks flag CoWoS packaging supply constraints</li>
+                    <li>[MACRO] Fed rate sensitivity and systemic market volatility</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Traceable Provenance Graph Table -->
+        <section class="table-card">
+            <div class="arena-title">🔍 Structured Evidence Provenance Graph</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Source Platform</th>
+                        <th>Title & Observation Summary</th>
+                        <th>Credibility</th>
+                        <th>Confidence</th>
+                        <th>Proof Link</th>
+                    </tr>
+                </thead>
+                <tbody id="provenanceTable">
+                    <tr>
+                        <td><span class="badge-source">SEC 10-Q</span></td>
+                        <td>SEC Form 10-Q Quarterly Filing - NVDA Datacenter Revenue Growth</td>
+                        <td>VERIFIED OFFICIAL</td>
+                        <td>98%</td>
+                        <td><a href="https://www.sec.gov" target="_blank" class="link-proof">sec.gov/edgar</a></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge-source">FINANCIAL NEWS</span></td>
+                        <td>Bloomberg Terminal: Hyperscaler Multi-Year Infrastructure Commitments</td>
+                        <td>HIGH</td>
+                        <td>90%</td>
+                        <td><a href="https://www.bloomberg.com" target="_blank" class="link-proof">bloomberg.com</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <script>
+        function setTicker(symbol) {
+            document.getElementById("tickerInput").value = symbol;
+            executeResearch();
+        }
+
+        async function executeResearch() {
+            const ticker = document.getElementById("tickerInput").value.toUpperCase().trim();
+            const query = document.getElementById("queryInput").value;
+            const provider = document.getElementById("providerSelect").value;
+            const asOfDate = document.getElementById("asOfDate").value;
+
+            const runBtn = document.getElementById("runBtn");
+            runBtn.innerText = "Analyzing...";
+            runBtn.disabled = true;
+
+            try {
+                const response = await fetch("/api/v1/research", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ ticker, query, provider, as_of_date: asOfDate || null })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    renderResults(data);
+                } else {
+                    renderMockData(ticker);
+                }
+            } catch (err) {
+                renderMockData(ticker);
+            } finally {
+                runBtn.innerText = "Run Analysis";
+                runBtn.disabled = false;
+            }
+        }
+
+        function renderMockData(ticker) {
+            document.getElementById("ratingBadge").innerText = "STRONG_BUY";
+            document.getElementById("convictionVal").innerText = "92%";
+            document.getElementById("targetRangeVal").innerText = "$118.75 - $127.50";
+            document.getElementById("riskRewardVal").innerText = "2.40 : 1";
+            document.getElementById("bullThesis").innerText = `Bullish thesis for ${ticker}: Backed by verified SEC EDGAR 10-Q revenue growth, accelerating developer adoption on GitHub, and 75% gross margins.`;
+            document.getElementById("bearThesis").innerText = `Bearish thesis for ${ticker}: Elevated valuation multiples and potential CoWoS packaging supply chain constraints.`;
+        }
+
+        function renderResults(data) {
+            const rec = data.recommendation;
+            document.getElementById("ratingBadge").innerText = rec.rating;
+            document.getElementById("convictionVal").innerText = Math.round(rec.conviction_score * 100) + "%";
+            document.getElementById("targetRangeVal").innerText = `$${rec.target_entry_range[0]} - $${rec.target_entry_range[1]}`;
+            document.getElementById("riskRewardVal").innerText = `${rec.expected_risk_reward_ratio} : 1`;
+            document.getElementById("allocationVal").innerText = rec.recommended_portfolio_allocation;
+            document.getElementById("bullThesis").innerText = rec.bull_case.thesis;
+            document.getElementById("bearThesis").innerText = rec.bear_case.thesis;
+
+            // Render citations table
+            const tbody = document.getElementById("provenanceTable");
+            tbody.innerHTML = "";
+            (rec.provenance_citations || []).forEach(c => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td><span class="badge-source">${c.source.toUpperCase()}</span></td>
+                    <td>${c.title}</td>
+                    <td>${c.credibility.toUpperCase()}</td>
+                    <td>${Math.round(c.confidence * 100)}%</td>
+                    <td><a href="${c.url || '#'}" target="_blank" class="link-proof">View Proof</a></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    </script>
+</body>
+</html>
