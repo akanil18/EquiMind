@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Investment Committee Debate — EquiMind</title>
+  <meta name="description" content="Adversarial Bull vs Bear debate and Judge resolution for NVIDIA research in EquiMind.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/committee.css">
+</head>
+<body>
+
+<div id="nav-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:150;backdrop-filter:blur(4px)" onclick="nav.closeMobile()"></div>
+
+<div class="app-shell">
+
+  <!-- ── LEFT NAV ── -->
+  <nav id="nav-sidebar" class="nav-sidebar" role="navigation" aria-label="Main navigation">
+    <div class="nav-logo">
+      <a href="index.html" class="nav-logo-icon" style="text-decoration:none">E</a>
+      <span class="nav-logo-text">EquiMind</span>
+    </div>
+    <div class="nav-body">
+      <span class="nav-group-label">Workspace</span>
+      <a href="index.html"       class="nav-item" data-page="index.html"><span class="nav-item-icon">🏠</span><span class="nav-item-label">Home</span></a>
+      <a href="research.html"    class="nav-item" data-page="research.html"><span class="nav-item-icon">🔬</span><span class="nav-item-label">Research</span></a>
+      <a href="live.html"        class="nav-item" data-page="live.html"><span class="nav-item-icon">⚡</span><span class="nav-item-label">Live Execution</span></a>
+      <span class="nav-group-label">Intelligence</span>
+      <a href="evidence.html"    class="nav-item" data-page="evidence.html"><span class="nav-item-icon">🕸️</span><span class="nav-item-label">Evidence Graph</span></a>
+      <a href="quantitative.html"class="nav-item" data-page="quantitative.html"><span class="nav-item-icon">📐</span><span class="nav-item-label">Quantitative</span></a>
+      <a href="committee.html"   class="nav-item" data-page="committee.html"><span class="nav-item-icon">⚔️</span><span class="nav-item-label">Committee</span></a>
+      <a href="portfolio.html"   class="nav-item" data-page="portfolio.html"><span class="nav-item-icon">💼</span><span class="nav-item-label">Portfolio</span></a>
+      <span class="nav-group-label">History</span>
+      <a href="memory.html"      class="nav-item" data-page="memory.html"><span class="nav-item-icon">🧠</span><span class="nav-item-label">Memory</span></a>
+      <a href="predictions.html" class="nav-item" data-page="predictions.html"><span class="nav-item-icon">📋</span><span class="nav-item-label">Predictions</span></a>
+      <a href="timemachine.html" class="nav-item" data-page="timemachine.html"><span class="nav-item-icon">⏳</span><span class="nav-item-label">Time Machine</span></a>
+      <span class="nav-group-label">System</span>
+      <a href="settings.html"    class="nav-item" data-page="settings.html"><span class="nav-item-icon">⚙️</span><span class="nav-item-label">Settings</span></a>
+    </div>
+    <div class="nav-footer">
+      <div class="nav-item" style="gap:var(--space-3);color:var(--text-muted);font-size:0.75rem">
+        <span class="status-dot live"></span>
+        <span class="nav-item-label">All systems operational</span>
+      </div>
+      <div id="nav-collapse-btn" class="nav-collapse-btn" tabindex="0" role="button" aria-label="Toggle sidebar">
+        <span class="nav-collapse-icon nav-item-icon">◀</span>
+        <span class="nav-item-label t-small">Collapse sidebar</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── MAIN CONTENT ── -->
+  <main class="main-content">
+
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <button id="mobile-menu-btn" class="btn btn-ghost btn-icon" style="display:none" aria-label="Open nav">☰</button>
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a href="index.html" class="breadcrumb-sep" style="color:var(--text-muted)">Home</a>
+          <span class="breadcrumb-sep">›</span>
+          <span class="breadcrumb-current">Adversarial Investment Committee</span>
+        </nav>
+      </div>
+      <div class="top-bar-right">
+        <span class="badge badge-amber" style="gap:5px">
+          ⚔️ Active Debate Session
+        </span>
+      </div>
+    </header>
+
+    <!-- Page Content Container -->
+    <div class="page-content">
+      <div class="committee-container">
+
+        <!-- Header -->
+        <div class="committee-header">
+          <div>
+            <h1 class="t-h1">Adversarial Debate Committee</h1>
+            <p class="t-secondary" style="margin-top:4px">
+              BullAgent and BearAgent independently contest every evidence node. JudgeAgent strips unverified claims.
+            </p>
+          </div>
+          <span class="ticker-chip" style="font-size:0.875rem">NVDA · Target: $640</span>
+        </div>
+
+        <!-- 2-Column Debate Grid (Bull vs Bear) -->
+        <div class="debate-grid">
+
+          <!-- Bull Panel -->
+          <div class="bull-panel">
+            <div class="debate-panel-header">
+              <span class="debate-title t-green">🐂 Bull Thesis Agent</span>
+              <span class="badge badge-green">Target: $640–$680</span>
+            </div>
+
+            <div class="thesis-box" style="border-left: 3px solid var(--green)">
+              <strong>Core Moat & Growth Thesis:</strong> NVIDIA Blackwell B200 GPU architecture establishes an 18–24 month technological moat. Data center revenue grew +154% YoY with 75.1% gross margin. Enterprise software lock-in via CUDA (892 GitHub commits/mo) prevents customer churn to alternative ASICs.
+            </div>
+
+            <div class="t-xs t-muted" style="text-transform:uppercase;letter-spacing:0.08em;font-weight:700">Supported Evidence Claims (7):</div>
+
+            <div class="evidence-list-item">
+              <span class="t-green">✓</span>
+              <div>
+                <strong>Q2 Data Center Revenue:</strong> $22.6B (+154% YoY) confirmed by SEC 10-Q filing.
+              </div>
+            </div>
+
+            <div class="evidence-list-item">
+              <span class="t-green">✓</span>
+              <div>
+                <strong>Piotroski Financial Health:</strong> 8/9 score signals top-decile accounting quality.
+              </div>
+            </div>
+
+            <div class="evidence-list-item">
+              <span class="t-green">✓</span>
+              <div>
+                <strong>CUDA Software Velocity:</strong> Developer repository activity at all-time high.
+              </div>
+            </div>
+
+            <div class="evidence-list-item">
+              <span class="t-green">✓</span>
+              <div>
+                <strong>TSMC Yield Confirmation:</strong> N3P packaging yields reached 82% per Bloomberg.
+              </div>
+            </div>
+          </div>
+
+          <!-- Bear Panel -->
+          <div class="bear-panel">
+            <div class="debate-panel-header">
+              <span class="debate-title t-red">🐻 Bear Thesis Agent</span>
+              <span class="badge badge-red">Target: $410–$430</span>
+            </div>
+
+            <div class="thesis-box" style="border-left: 3px solid var(--red)">
+              <strong>Valuation & Geopolitical Risk Thesis:</strong> PE multiple of 42.3x prices in uninterrupted growth. Customer concentration risk is high: top 4 cloud providers account for 45% of total purchases. 34% Taiwan supply chain exposure poses tail risk. Custom hyperscaler ASICs (Google TPU v5e, Microsoft Maia) will cannibalize market share by 2026.
+            </div>
+
+            <div class="t-xs t-muted" style="text-transform:uppercase;letter-spacing:0.08em;font-weight:700">Contested Risk Factors (4):</div>
+
+            <div class="evidence-list-item">
+              <span class="t-red">⚠</span>
+              <div>
+                <strong>Hyperscaler Concentration:</strong> 45% of revenue dependent on 4 cloud providers.
+              </div>
+            </div>
+
+            <div class="evidence-list-item">
+              <span class="t-red">⚠</span>
+              <div>
+                <strong>Taiwan Geopolitical Exposure:</strong> TSMC packaging bottleneck risk.
+              </div>
+            </div>
+
+            <div class="evidence-list-item">
+              <span class="t-red">⚠</span>
+              <div>
+                <strong>Multiple Contraction Risk:</strong> 42.3x P/E vulnerable to minor guidance misses.
+              </div>
+            </div>
+
+            <div class="evidence-list-item">
+              <span class="t-red">❌</span>
+              <div>
+                <span class="t-muted" style="text-decoration:line-through">Claimed 50% market share loss to AMD by 2026</span>
+                <span class="badge badge-red" style="font-size:0.6rem;margin-left:4px">STRIPPED BY JUDGE</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Judge Panel (Resolution) -->
+        <div class="judge-panel">
+          <div class="flex items-center justify-between">
+            <div class="t-h2 flex items-center gap-2">
+              <span>⚖️</span> Judge Agent Verdict & Resolution
+            </div>
+            <span class="badge badge-green" style="font-size:0.875rem">Conviction: 91% (STRONG BUY)</span>
+          </div>
+
+          <!-- Balance Scale Bar -->
+          <div class="t-xs t-muted" style="text-transform:uppercase;letter-spacing:0.08em">Evidence Weight Distribution:</div>
+          <div class="judge-balance-bar">
+            <div class="judge-bar-bull" style="width:72%">BULL EVIDENCE 72%</div>
+            <div class="judge-bar-bear" style="width:28%">BEAR 28%</div>
+          </div>
+
+          <!-- Conflict Resolution Table -->
+          <div class="t-h3" style="margin-top:var(--space-3)">Evidence Conflict Resolution Log</div>
+          <table class="conflict-table">
+            <thead>
+              <tr>
+                <th>Contradiction Pair</th>
+                <th>Bull Argument</th>
+                <th>Bear Counter</th>
+                <th>Judge Resolution</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Hyperscaler Custom Chips</strong></td>
+                <td>Internal ASICs lack CUDA developer ecosystem.</td>
+                <td>MSFT Maia & GOOG TPU lower GPU demand.</td>
+                <td><span class="t-green">Resolved (Bull):</span> ASICs handle inference; NVDA retains 88% training market.</td>
+              </tr>
+              <tr>
+                <td><strong>Taiwan Supply Risk</strong></td>
+                <td>TSMC Arizona fab coming online Q1 2026.</td>
+                <td>34% packaging exposure in Taiwan Strait.</td>
+                <td><span class="t-amber">Resolved (Balanced):</span> Bounded 2-quarter disruption risk max. B05 VaR updated.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="margin-top:var(--space-4);display:flex;justify-content:flex-end;gap:var(--space-3)">
+            <a href="report.html" class="btn btn-primary">Generate Final Research Report →</a>
+          </div>
+        </div>
+
+        <div style="height:var(--space-12)"></div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast-container" class="toast-container" role="status" aria-live="polite"></div>
+
+<script src="js/nav.js"></script>
+<script>
+  function checkMobile() {
+    const btn = document.getElementById('mobile-menu-btn');
+    if (btn) btn.style.display = window.innerWidth <= 768 ? 'flex' : 'none';
+  }
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Research — EquiMind</title>
+  <meta name="description" content="EquiMind live research execution workspace with animated DAG, streaming timeline, and adversarial committee debate.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/research.css">
+</head>
+<body>
+
+<div id="nav-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:150;backdrop-filter:blur(4px)" onclick="nav.closeMobile()"></div>
+
+<div class="app-shell">
+
+  <!-- ── LEFT NAV ── -->
+  <nav id="nav-sidebar" class="nav-sidebar" role="navigation" aria-label="Main navigation">
+    <div class="nav-logo">
+      <a href="index.html" class="nav-logo-icon" style="text-decoration:none">E</a>
+      <span class="nav-logo-text">EquiMind</span>
+    </div>
+    <div class="nav-body">
+      <span class="nav-group-label">Workspace</span>
+      <a href="index.html"       class="nav-item" data-page="index.html"><span class="nav-item-icon">🏠</span><span class="nav-item-label">Home</span></a>
+      <a href="research.html"    class="nav-item" data-page="research.html"><span class="nav-item-icon">🔬</span><span class="nav-item-label">Research</span></a>
+      <a href="live.html"        class="nav-item" data-page="live.html"><span class="nav-item-icon">⚡</span><span class="nav-item-label">Live Execution</span></a>
+      <span class="nav-group-label">Intelligence</span>
+      <a href="evidence.html"    class="nav-item" data-page="evidence.html"><span class="nav-item-icon">🕸️</span><span class="nav-item-label">Evidence Graph</span></a>
+      <a href="quantitative.html"class="nav-item" data-page="quantitative.html"><span class="nav-item-icon">📐</span><span class="nav-item-label">Quantitative</span></a>
+      <a href="committee.html"   class="nav-item" data-page="committee.html"><span class="nav-item-icon">⚔️</span><span class="nav-item-label">Committee</span></a>
+      <a href="portfolio.html"   class="nav-item" data-page="portfolio.html"><span class="nav-item-icon">💼</span><span class="nav-item-label">Portfolio</span></a>
+      <span class="nav-group-label">History</span>
+      <a href="memory.html"      class="nav-item" data-page="memory.html"><span class="nav-item-icon">🧠</span><span class="nav-item-label">Memory</span></a>
+      <a href="predictions.html" class="nav-item" data-page="predictions.html"><span class="nav-item-icon">📋</span><span class="nav-item-label">Predictions</span></a>
+      <a href="timemachine.html" class="nav-item" data-page="timemachine.html"><span class="nav-item-icon">⏳</span><span class="nav-item-label">Time Machine</span></a>
+      <span class="nav-group-label">System</span>
+      <a href="settings.html"    class="nav-item" data-page="settings.html"><span class="nav-item-icon">⚙️</span><span class="nav-item-label">Settings</span></a>
+    </div>
+    <div class="nav-footer">
+      <div class="nav-item" style="gap:var(--space-3);color:var(--text-muted);font-size:0.75rem">
+        <span class="status-dot live"></span>
+        <span class="nav-item-label">All systems operational</span>
+      </div>
+      <div id="nav-collapse-btn" class="nav-collapse-btn" tabindex="0" role="button" aria-label="Toggle sidebar">
+        <span class="nav-collapse-icon nav-item-icon">◀</span>
+        <span class="nav-item-label t-small">Collapse sidebar</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── MAIN CONTENT ── -->
+  <main class="main-content">
+
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <button id="mobile-menu-btn" class="btn btn-ghost btn-icon" style="display:none" aria-label="Open nav">☰</button>
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a href="index.html" class="breadcrumb-sep" style="color:var(--text-muted)">Home</a>
+          <span class="breadcrumb-sep">›</span>
+          <span class="breadcrumb-current" id="dag-tab-label">Live Execution</span>
+        </nav>
+      </div>
+      <div class="top-bar-right">
+        <span id="research-status-badge">
+          <span class="badge badge-cyan" style="gap:5px"><span class="spinner spinner-sm"></span>Researching…</span>
+        </span>
+        <span class="badge badge-neutral t-mono" style="gap:5px">
+          ⏱ <span id="elapsed-time">0s</span>
+        </span>
+        <a href="index.html" class="btn btn-ghost btn-sm">← New Query</a>
+      </div>
+    </header>
+
+    <!-- Research Layout -->
+    <div class="research-layout">
+
+      <!-- ── LEFT: Main Workspace ── -->
+      <div class="research-main">
+
+        <!-- Query Banner -->
+        <div class="query-banner">
+          <div class="query-banner-left">
+            <div class="query-banner-meta">
+              <span class="ticker-chip" id="ticker-display">NVDA</span>
+              <span class="badge badge-violet">Semiconductor · AI Infra</span>
+              <span class="badge badge-neutral">Long-Term Horizon</span>
+              <span class="badge badge-neutral t-mono" style="font-size:0.6875rem">Mock Engine</span>
+            </div>
+            <div class="query-text" id="query-display">Analyze NVIDIA for long-term investment</div>
+          </div>
+        </div>
+
+        <!-- Tab Bar -->
+        <div class="workspace-tabs" role="tablist">
+          <div class="workspace-tab active" data-tab="dag" role="tab" aria-selected="true" tabindex="0">
+            <span>🗺</span> Execution DAG
+          </div>
+          <div class="workspace-tab" data-tab="timeline" role="tab" aria-selected="false" tabindex="0">
+            <span>📋</span> Research Timeline
+            <span class="workspace-tab-count" id="timeline-count">0</span>
+          </div>
+        </div>
+
+        <!-- ── DAG Panel ── -->
+        <div class="tab-panel active" id="panel-dag" role="tabpanel">
+          <div class="dag-container">
+            <div style="width:100%;max-width:860px">
+
+              <!-- Row 1: Planner -->
+              <div style="display:flex;justify-content:center;margin-bottom:var(--space-4)">
+                <div id="dag-planner" class="dag-node-box state-waiting" onclick="switchTab('timeline')" style="min-width:140px">
+                  <div class="dag-node-icon">🎯</div>
+                  <div class="dag-node-label">Reasoning Planner</div>
+                  <div class="dag-node-sub">Sector · Horizon · DAG</div>
+                  <div class="dag-node-duration"></div>
+                </div>
+              </div>
+
+              <!-- Vertical connector -->
+              <div style="display:flex;justify-content:center;margin-bottom:var(--space-3)">
+                <div class="dag-edge-connector" id="edge-planner-teams"></div>
+              </div>
+
+              <!-- Row 2: Research Teams (horizontal) -->
+              <div style="display:flex;justify-content:center;gap:var(--space-4);margin-bottom:var(--space-3);flex-wrap:wrap">
+                <div id="dag-market" class="dag-node-box state-waiting" onclick="switchTab('timeline')">
+                  <div class="dag-node-icon">📈</div>
+                  <div class="dag-node-label">Market Data</div>
+                  <div class="dag-node-sub">OHLCV · Volume · Liquidity</div>
+                  <div class="dag-node-duration"></div>
+                </div>
+                <div id="dag-fundamental" class="dag-node-box state-waiting" onclick="switchTab('timeline')">
+                  <div class="dag-node-icon">📊</div>
+                  <div class="dag-node-label">Fundamental</div>
+                  <div class="dag-node-sub">Balance Sheet · Ratios</div>
+                  <div class="dag-node-duration"></div>
+                </div>
+                <div id="dag-macro" class="dag-node-box state-waiting" onclick="switchTab('timeline')">
+                  <div class="dag-node-icon">🌍</div>
+                  <div class="dag-node-label">Macro Research</div>
+                  <div class="dag-node-sub">CPI · Fed Rate · VIX</div>
+                  <div class="dag-node-duration"></div>
+                </div>
+                <div id="dag-web" class="dag-node-box state-waiting" onclick="switchTab('timeline')">
+                  <div class="dag-node-icon">🕸️</div>
+                  <div class="dag-node-label">Web Intelligence</div>
+                  <div class="dag-node-sub">SEC · Reddit · GitHub</div>
+                  <div class="dag-node-duration"></div>
+                </div>
+              </div>
+
+              <!-- Vertical connector -->
+              <div style="display:flex;justify-content:center;margin-bottom:var(--space-3)">
+                <div class="dag-edge-connector" id="edge-teams-quant"></div>
+              </div>
+
+              <!-- Row 3: Middle layer -->
+              <div style="display:flex;justify-content:center;gap:var(--space-4);margin-bottom:var(--space-3);flex-wrap:wrap">
+                <div id="dag-featureStore" class="dag-node-box state-waiting" onclick="switchTab('timeline')">
+                  <div class="dag-node-icon">⚗️</div>
+                  <div class="dag-node-label">Feature Store</div>
+                  <div class="dag-node-sub">Z-Score Normalization</div>
+                  <div class="dag-node-duration"></div>
+                </div>
+                <div id="dag-memory" class="dag-node-box state-waiting" onclick="switchTab('timeline')">
+                  <div class="dag-node-icon">🧠</div>
+                  <div class="dag-node-label">Memory / Delta</div>
+                  <div class="dag-node-sub">Tier 1–5 · Cache diff</div>
+                  <div class="dag-node-duration"></div>
+                </div>
+              </div>
+
+              <!-- Vertical connector -->
+              <div style="display:flex;justify-content:center;margin-bottom:var(--space-3)">
+                <div class="dag-edge-connector" id="edge-mid-quant"></div>
+              </div>
+
+              <!-- Row 4: Quant Engines -->
+              <div style="display:flex;justify-content:center;margin-bottom:var(--space-3)">
+                <div id="dag-quant" class="dag-node-box state-waiting" onclick="switchTab('timeline')" style="min-width:320px">
+                  <div style="display:flex;align-items:center;gap:var(--space-3)">
+                    <div class="dag-node-icon">🧮</div>
+                    <div style="text-align:left">
+                      <div class="dag-node-label">Quantitative Engine Suite</div>
+                      <div class="dag-node-sub">Time Series · Alpha Lab · Causal · Monte Carlo · Portfolio</div>
+                    </div>
+                  </div>
+                  <div class="dag-node-duration" style="text-align:center;margin-top:var(--space-2)"></div>
+                </div>
+              </div>
+
+              <!-- Vertical connector -->
+              <div style="display:flex;justify-content:center;margin-bottom:var(--space-3)">
+                <div class="dag-edge-connector" id="edge-quant-committee"></div>
+              </div>
+
+              <!-- Row 5: Investment Committee -->
+              <div style="display:flex;justify-content:center;gap:var(--space-4);flex-wrap:wrap">
+                <div id="dag-committee" class="dag-node-box state-waiting" onclick="switchTab('timeline')" style="min-width:280px">
+                  <div style="display:flex;align-items:center;gap:var(--space-4)">
+                    <span style="font-size:1.25rem">⚔️</span>
+                    <div style="text-align:left">
+                      <div class="dag-node-label">Adversarial Committee</div>
+                      <div class="dag-node-sub">Bull vs Bear → Judge → Final Recommendation</div>
+                    </div>
+                  </div>
+                  <div class="dag-node-duration" style="text-align:center;margin-top:var(--space-2)"></div>
+                </div>
+              </div>
+
+              <!-- DAG legend -->
+              <div style="display:flex;justify-content:center;gap:var(--space-5);margin-top:var(--space-8);flex-wrap:wrap">
+                <div style="display:flex;align-items:center;gap:var(--space-2);font-size:0.75rem;color:var(--text-muted)">
+                  <div style="width:10px;height:10px;border-radius:50%;background:var(--text-muted);opacity:0.4"></div>Waiting
+                </div>
+                <div style="display:flex;align-items:center;gap:var(--space-2);font-size:0.75rem;color:var(--cyan)">
+                  <div style="width:10px;height:10px;border-radius:50%;background:var(--cyan);animation:pulse-ring 1.5s infinite"></div>Running
+                </div>
+                <div style="display:flex;align-items:center;gap:var(--space-2);font-size:0.75rem;color:var(--green)">
+                  <div style="width:10px;height:10px;border-radius:50%;background:var(--green)"></div>Complete
+                </div>
+                <div style="display:flex;align-items:center;gap:var(--space-2);font-size:0.75rem;color:var(--text-disabled)">
+                  <div style="width:10px;height:10px;border-radius:50%;border:1px dashed var(--text-disabled)"></div>Skipped
+                </div>
+                <div style="font-size:0.75rem;color:var(--text-muted)">Click any node → view timeline</div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Timeline Panel ── -->
+        <div class="tab-panel" id="panel-timeline" role="tabpanel">
+          <div class="timeline-container" id="timeline-container">
+            <!-- Events injected by research.js -->
+          </div>
+        </div>
+
+      </div><!-- end research-main -->
+
+      <!-- ── RIGHT: Agent Status Panel ── -->
+      <aside class="agent-panel" aria-label="Agent status">
+
+        <div class="agent-panel-header">
+          <div class="flex items-center justify-between">
+            <h2 class="t-h3">Agent Status</h2>
+            <span class="badge badge-cyan t-mono" style="font-size:0.6875rem">Live</span>
+          </div>
+          <div class="t-small t-secondary" style="margin-top:4px">9 agents in pipeline</div>
+        </div>
+
+        <div class="agent-panel-body">
+
+          <div id="agent-planner" class="agent-card">
+            <div class="agent-card-top">
+              <div class="agent-name"><span class="status-dot waiting"></span>Reasoning Planner</div>
+              <span class="agent-status-text">Waiting</span>
+            </div>
+            <div class="t-xs t-muted">Sector detection · DAG construction</div>
+            <div class="agent-progress"><div class="agent-progress-bar" style="width:0%"></div></div>
+            <div class="agent-output">Sector: SEMICONDUCTOR\nHorizon: LONG_TERM\nTeams: 4 activated</div>
+          </div>
+
+          <div id="agent-market" class="agent-card">
+            <div class="agent-card-top">
+              <div class="agent-name"><span class="status-dot waiting"></span>Market Data Team</div>
+              <span class="agent-status-text">Waiting</span>
+            </div>
+            <div class="t-xs t-muted">OHLCV · Volume · Technicals</div>
+            <div class="agent-progress"><div class="agent-progress-bar" style="width:0%"></div></div>
+            <div class="agent-output">RSI(14): 68.4\nMACD: +2.34\nBB Width: 8.2%</div>
+          </div>
+
+          <div id="agent-fundamental" class="agent-card">
+            <div class="agent-card-top">
+              <div class="agent-name"><span class="status-dot waiting"></span>Fundamental Team</div>
+              <span class="agent-status-text">Waiting</span>
+            </div>
+            <div class="t-xs t-muted">Balance sheet · Ratios · Scores</div>
+            <div class="agent-progress"><div class="agent-progress-bar" style="width:0%"></div></div>
+            <div class="agent-output">Piotroski: 8/9\nAltman Z: 4.82 Safe\nROE: 68.4%</div>
+          </div>
+
+          <div id="agent-macro" class="agent-card">
+            <div class="agent-card-top">
+              <div class="agent-name"><span class="status-dot waiting"></span>Macro Research Team</div>
+              <span class="agent-status-text">Waiting</span>
+            </div>
+            <div class="t-xs t-muted">CPI · Fed Rate · Commodities</div>
+            <div class="agent-progress"><div class="agent-progress-bar" style="width:0%"></div></div>
+            <div class="agent-output">CPI: 3.2% | Fed: 5.25%\nAI Capex: +38% YoY</div>
+          </div>
+
+          <div id="agent-web" class="agent-card">
+            <div class="agent-card-top">
+              <div class="agent-name"><span class="status-dot waiting"></span>Web Intelligence</div>
+              <span class="agent-status-text">Waiting</span>
+            </div>
+            <div class="t-xs t-muted">SEC · News · Reddit · GitHub</div>
+            <div class="agent-progress"><div class="agent-progress-bar" style="width:0%"></div></div>
+            <div class="agent-output">63 nodes | Bullish: 68%\nDeduped: -12 duplicates</div>
+          </div>
+
+          <div id="agent-featureStore" class="agent-card">
+            <div class="agent-card-top">
+              <div class="agent-name"><span class="status-dot waiting"></span>Feature Engineering</div>
+              <span class="agent-status-text">Waiting</span>
+            </div>
+            <div class="t-xs t-muted">Z-Score Normalization</div>
+            <div class="agent-progress"><div class="agent-progress-bar" style="width:0%"></div></div>
+            <div class="agent-output">24-dim feature vector\nZ-norm applied</div>
+          </div>
+
+          <div id="agent-memory" class="agent-card">
+            <div class="agent-card-top">
+              <div class="agent-name"><span class="status-dot waiting"></span>Memory / Delta Engine</div>
+              <span class="agent-status-text">Waiting</span>
+            </div>
+            <div class="t-xs t-muted">Tier 1–5 · Cache diff</div>
+            <div class="agent-progress"><div class="agent-progress-bar" style="width:0%"></div></div>
+            <div class="agent-output">41 new signals (14d)\nTier 1+2 updated</div>
+          </div>
+
+          <div id="agent-quant" class="agent-card">
+            <div class="agent-card-top">
+              <div class="agent-name"><span class="status-dot waiting"></span>Quantitative Suite</div>
+              <span class="agent-status-text">Waiting</span>
+            </div>
+            <div class="t-xs t-muted">9 deterministic engines</div>
+            <div class="agent-progress"><div class="agent-progress-bar" style="width:0%"></div></div>
+            <div class="agent-output">Sharpe: 2.14\nSortino: 3.28\nKelly: 12.4%</div>
+          </div>
+
+          <div id="agent-committee" class="agent-card">
+            <div class="agent-card-top">
+              <div class="agent-name"><span class="status-dot waiting"></span>Investment Committee</div>
+              <span class="agent-status-text">Waiting</span>
+            </div>
+            <div class="t-xs t-muted">Bull · Bear · Judge</div>
+            <div class="agent-progress"><div class="agent-progress-bar" style="width:0%"></div></div>
+            <div class="agent-output">Rating: STRONG BUY\nConviction: 91%</div>
+          </div>
+
+        </div>
+
+        <!-- Exec Summary Footer -->
+        <div class="exec-summary">
+          <div class="exec-stat-row">
+            <span class="exec-stat-label">Evidence Nodes</span>
+            <span class="exec-stat-val t-cyan">63</span>
+          </div>
+          <div class="exec-stat-row">
+            <span class="exec-stat-label">Context Tokens Used</span>
+            <span class="exec-stat-val">~3,840</span>
+          </div>
+          <div class="exec-stat-row">
+            <span class="exec-stat-label">Elapsed Time</span>
+            <span class="exec-stat-val" id="elapsed-footer">—</span>
+          </div>
+          <div class="exec-stat-row">
+            <span class="exec-stat-label">Provider</span>
+            <span class="exec-stat-val t-secondary">Mock Engine</span>
+          </div>
+          <a href="report.html" class="btn btn-primary w-full" style="margin-top:var(--space-2);justify-content:center">
+            View Full Report
+          </a>
+        </div>
+
+      </aside>
+
+    </div><!-- end research-layout -->
+
+  </main>
+</div>
+
+<div id="toast-container" class="toast-container" role="status" aria-live="polite"></div>
+
+<script src="js/nav.js"></script>
+<script src="js/research.js"></script>
+<script>
+  // Sync elapsed footer
+  setInterval(() => {
+    const f = document.getElementById('elapsed-footer');
+    const e = document.getElementById('elapsed-time');
+    if (f && e) f.textContent = e.textContent;
+  }, 1000);
+
+  // Animate DAG edge connectors when parent node goes done
+  const edgeMap = {
+    planner: 'edge-planner-teams',
+    web: 'edge-teams-quant',
+    featureStore: 'edge-mid-quant',
+    quant: 'edge-quant-committee',
+  };
+  const origUpdateNode = window.updateNodeState;
+  // Patch to also animate edges (after research.js defines updateNodeState globally)
+  document.addEventListener('DOMContentLoaded', () => {
+    const _orig = window.updateNodeState;
+    if (_orig) {
+      window.updateNodeState = function(nodeId, state, progress, output) {
+        _orig(nodeId, state, progress, output);
+        const edgeId = edgeMap[nodeId];
+        if (edgeId && state === 'done') {
+          const edge = document.getElementById(edgeId);
+          if (edge) edge.classList.add('active');
+        }
+      };
+    }
+  });
+
+  // Mobile check
+  function checkMobile() {
+    const btn = document.getElementById('mobile-menu-btn');
+    if (btn) btn.style.display = window.innerWidth <= 768 ? 'flex' : 'none';
+  }
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+</script>
+
+</body>
+</html>

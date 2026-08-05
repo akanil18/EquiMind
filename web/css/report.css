@@ -1,0 +1,97 @@
+/* =========================================================
+   EquiMind Institutional Research Report — report.css
+   Print-ready institutional document layout with cited evidence
+   ========================================================= */
+
+.report-page-container {
+  padding: var(--space-8) var(--space-8);
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.report-document {
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-xl);
+  padding: var(--space-10) var(--space-12);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  box-shadow: var(--shadow-lg);
+}
+
+.report-doc-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--border-strong);
+  padding-bottom: var(--space-6);
+}
+
+.report-doc-title {
+  font-family: var(--font-heading);
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.15;
+}
+
+.report-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.report-section-title {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--cyan);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.report-body-text {
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+
+.cite-link {
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  vertical-align: super;
+  cursor: pointer;
+  padding: 0 2px;
+}
+.cite-link:hover {
+  text-decoration: underline;
+}
+
+.report-callout {
+  padding: var(--space-5);
+  background: var(--bg-glass);
+  border-left: 4px solid var(--cyan);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+@media print {
+  body { background: #fff; color: #000; }
+  .nav-sidebar, .top-bar, .btn { display: none !important; }
+  .report-document { border: none; box-shadow: none; padding: 0; }
+}
+
+@media (max-width: 768px) {
+  .report-page-container { padding: var(--space-4); }
+  .report-document { padding: var(--space-6); }
+}

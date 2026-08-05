@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memory Explorer — EquiMind</title>
+  <meta name="description" content="Hierarchical 5-Tier Memory Explorer for EquiMind investment research OS.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/history.css">
+</head>
+<body>
+
+<div id="nav-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:150;backdrop-filter:blur(4px)" onclick="nav.closeMobile()"></div>
+
+<div class="app-shell">
+
+  <!-- ── LEFT NAV ── -->
+  <nav id="nav-sidebar" class="nav-sidebar" role="navigation" aria-label="Main navigation">
+    <div class="nav-logo">
+      <a href="index.html" class="nav-logo-icon" style="text-decoration:none">E</a>
+      <span class="nav-logo-text">EquiMind</span>
+    </div>
+    <div class="nav-body">
+      <span class="nav-group-label">Workspace</span>
+      <a href="index.html"       class="nav-item" data-page="index.html"><span class="nav-item-icon">🏠</span><span class="nav-item-label">Home</span></a>
+      <a href="research.html"    class="nav-item" data-page="research.html"><span class="nav-item-icon">🔬</span><span class="nav-item-label">Research</span></a>
+      <a href="live.html"        class="nav-item" data-page="live.html"><span class="nav-item-icon">⚡</span><span class="nav-item-label">Live Execution</span></a>
+      <span class="nav-group-label">Intelligence</span>
+      <a href="evidence.html"    class="nav-item" data-page="evidence.html"><span class="nav-item-icon">🕸️</span><span class="nav-item-label">Evidence Graph</span></a>
+      <a href="quantitative.html"class="nav-item" data-page="quantitative.html"><span class="nav-item-icon">📐</span><span class="nav-item-label">Quantitative</span></a>
+      <a href="committee.html"   class="nav-item" data-page="committee.html"><span class="nav-item-icon">⚔️</span><span class="nav-item-label">Committee</span></a>
+      <a href="portfolio.html"   class="nav-item" data-page="portfolio.html"><span class="nav-item-icon">💼</span><span class="nav-item-label">Portfolio</span></a>
+      <span class="nav-group-label">History</span>
+      <a href="memory.html"      class="nav-item" data-page="memory.html"><span class="nav-item-icon">🧠</span><span class="nav-item-label">Memory</span></a>
+      <a href="predictions.html" class="nav-item" data-page="predictions.html"><span class="nav-item-icon">📋</span><span class="nav-item-label">Predictions</span></a>
+      <a href="timemachine.html" class="nav-item" data-page="timemachine.html"><span class="nav-item-icon">⏳</span><span class="nav-item-label">Time Machine</span></a>
+      <span class="nav-group-label">System</span>
+      <a href="settings.html"    class="nav-item" data-page="settings.html"><span class="nav-item-icon">⚙️</span><span class="nav-item-label">Settings</span></a>
+    </div>
+    <div class="nav-footer">
+      <div class="nav-item" style="gap:var(--space-3);color:var(--text-muted);font-size:0.75rem">
+        <span class="status-dot live"></span>
+        <span class="nav-item-label">All systems operational</span>
+      </div>
+      <div id="nav-collapse-btn" class="nav-collapse-btn" tabindex="0" role="button" aria-label="Toggle sidebar">
+        <span class="nav-collapse-icon nav-item-icon">◀</span>
+        <span class="nav-item-label t-small">Collapse sidebar</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── MAIN CONTENT ── -->
+  <main class="main-content">
+
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <button id="mobile-menu-btn" class="btn btn-ghost btn-icon" style="display:none" aria-label="Open nav">☰</button>
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a href="index.html" class="breadcrumb-sep" style="color:var(--text-muted)">Home</a>
+          <span class="breadcrumb-sep">›</span>
+          <span class="breadcrumb-current">Hierarchical Memory Explorer</span>
+        </nav>
+      </div>
+      <div class="top-bar-right">
+        <span class="badge badge-cyan">Tier 1–5 Memory Active</span>
+      </div>
+    </header>
+
+    <!-- Page Content Container -->
+    <div class="page-content">
+      <div class="history-container">
+
+        <div>
+          <h1 class="t-h1">Hierarchical Memory Explorer</h1>
+          <p class="t-secondary" style="margin-top:4px">
+            EquiMind maintains a 5-tier memory hierarchy to enable delta-research, avoiding redundant API calls and maintaining long-term market context.
+          </p>
+        </div>
+
+        <!-- 5 Tiers Accordion -->
+        <div style="display:flex;flex-direction:column;gap:var(--space-4)">
+
+          <!-- Tier 1 -->
+          <div class="memory-tier-card">
+            <div class="memory-tier-header">
+              <span class="t-h3 t-cyan">Tier 1: Raw Signals & Real-Time Stream</span>
+              <span class="badge badge-cyan">1,240 Nodes · 12.4 MB</span>
+            </div>
+            <div class="t-body t-secondary">
+              Stores uncompressed SEC filings, raw Bloomberg RSS feeds, GitHub commit logs, and Reddit thread dumps ingested in the last 24 hours.
+            </div>
+          </div>
+
+          <!-- Tier 2 -->
+          <div class="memory-tier-card">
+            <div class="memory-tier-header">
+              <span class="t-h3 t-green">Tier 2: Daily Synthesis & Deduplicated Memory</span>
+              <span class="badge badge-green">482 Summaries · 4.8 MB</span>
+            </div>
+            <div class="t-body t-secondary">
+              MD5 deduplicated and Jaccard token-clustered daily research summaries per asset ticker.
+            </div>
+          </div>
+
+          <!-- Tier 3 -->
+          <div class="memory-tier-card">
+            <div class="memory-tier-header">
+              <span class="t-h3 t-amber">Tier 3: Weekly Sector Consolidation</span>
+              <span class="badge badge-amber">64 Reports · 1.2 MB</span>
+            </div>
+            <div class="t-body t-secondary">
+              Consolidated weekly sector intelligence (Semiconductors, Cloud, EV, FinTech).
+            </div>
+          </div>
+
+          <!-- Tier 4 -->
+          <div class="memory-tier-card">
+            <div class="memory-tier-header">
+              <span class="t-h3 t-violet">Tier 4: Monthly Macro & Valuation Regimes</span>
+              <span class="badge badge-violet">12 Checkpoints · 420 KB</span>
+            </div>
+            <div class="t-body t-secondary">
+              HMM market regime classifications, macro interest rate cycles, and historical valuation percentiles.
+            </div>
+          </div>
+
+          <!-- Tier 5 -->
+          <div class="memory-tier-card">
+            <div class="memory-tier-header">
+              <span class="t-h3" style="color:var(--text-primary)">Tier 5: Quarterly Institutional Knowledge Base</span>
+              <span class="badge badge-neutral">4 Knowledge Graphs · 180 KB</span>
+            </div>
+            <div class="t-body t-secondary">
+              Long-term enterprise competitive advantage graphs, supply chain mapping, and management execution histories.
+            </div>
+          </div>
+
+        </div>
+
+        <div style="height:var(--space-12)"></div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast-container" class="toast-container" role="status" aria-live="polite"></div>
+
+<script src="js/nav.js"></script>
+<script>
+  function checkMobile() {
+    const btn = document.getElementById('mobile-menu-btn');
+    if (btn) btn.style.display = window.innerWidth <= 768 ? 'flex' : 'none';
+  }
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+</script>
+
+</body>
+</html>

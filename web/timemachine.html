@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Time Machine Backtester — EquiMind</title>
+  <meta name="description" content="TemporalGuard backtesting Time Machine for EquiMind AI Research OS.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/history.css">
+</head>
+<body>
+
+<div id="nav-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:150;backdrop-filter:blur(4px)" onclick="nav.closeMobile()"></div>
+
+<div class="app-shell">
+
+  <!-- ── LEFT NAV ── -->
+  <nav id="nav-sidebar" class="nav-sidebar" role="navigation" aria-label="Main navigation">
+    <div class="nav-logo">
+      <a href="index.html" class="nav-logo-icon" style="text-decoration:none">E</a>
+      <span class="nav-logo-text">EquiMind</span>
+    </div>
+    <div class="nav-body">
+      <span class="nav-group-label">Workspace</span>
+      <a href="index.html"       class="nav-item" data-page="index.html"><span class="nav-item-icon">🏠</span><span class="nav-item-label">Home</span></a>
+      <a href="research.html"    class="nav-item" data-page="research.html"><span class="nav-item-icon">🔬</span><span class="nav-item-label">Research</span></a>
+      <a href="live.html"        class="nav-item" data-page="live.html"><span class="nav-item-icon">⚡</span><span class="nav-item-label">Live Execution</span></a>
+      <span class="nav-group-label">Intelligence</span>
+      <a href="evidence.html"    class="nav-item" data-page="evidence.html"><span class="nav-item-icon">🕸️</span><span class="nav-item-label">Evidence Graph</span></a>
+      <a href="quantitative.html"class="nav-item" data-page="quantitative.html"><span class="nav-item-icon">📐</span><span class="nav-item-label">Quantitative</span></a>
+      <a href="committee.html"   class="nav-item" data-page="committee.html"><span class="nav-item-icon">⚔️</span><span class="nav-item-label">Committee</span></a>
+      <a href="portfolio.html"   class="nav-item" data-page="portfolio.html"><span class="nav-item-icon">💼</span><span class="nav-item-label">Portfolio</span></a>
+      <span class="nav-group-label">History</span>
+      <a href="memory.html"      class="nav-item" data-page="memory.html"><span class="nav-item-icon">🧠</span><span class="nav-item-label">Memory</span></a>
+      <a href="predictions.html" class="nav-item" data-page="predictions.html"><span class="nav-item-icon">📋</span><span class="nav-item-label">Predictions</span></a>
+      <a href="timemachine.html" class="nav-item" data-page="timemachine.html"><span class="nav-item-icon">⏳</span><span class="nav-item-label">Time Machine</span></a>
+      <span class="nav-group-label">System</span>
+      <a href="settings.html"    class="nav-item" data-page="settings.html"><span class="nav-item-icon">⚙️</span><span class="nav-item-label">Settings</span></a>
+    </div>
+    <div class="nav-footer">
+      <div class="nav-item" style="gap:var(--space-3);color:var(--text-muted);font-size:0.75rem">
+        <span class="status-dot live"></span>
+        <span class="nav-item-label">All systems operational</span>
+      </div>
+      <div id="nav-collapse-btn" class="nav-collapse-btn" tabindex="0" role="button" aria-label="Toggle sidebar">
+        <span class="nav-collapse-icon nav-item-icon">◀</span>
+        <span class="nav-item-label t-small">Collapse sidebar</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── MAIN CONTENT ── -->
+  <main class="main-content">
+
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <button id="mobile-menu-btn" class="btn btn-ghost btn-icon" style="display:none" aria-label="Open nav">☰</button>
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a href="index.html" class="breadcrumb-sep" style="color:var(--text-muted)">Home</a>
+          <span class="breadcrumb-sep">›</span>
+          <span class="breadcrumb-current">Time Machine Backtester</span>
+        </nav>
+      </div>
+      <div class="top-bar-right">
+        <span class="badge badge-violet">TemporalGuard Active</span>
+      </div>
+    </header>
+
+    <!-- Page Content Container -->
+    <div class="page-content">
+      <div class="history-container">
+
+        <div class="timemachine-hero">
+          <div class="t-hero t-violet">⏳ Temporal Machine</div>
+          <p class="t-body t-secondary" style="max-width:600px">
+            Set an historical cutoff date (`as_of_date`). The `TemporalGuard` engine strips all future evidence, SEC filings, and price data published after your chosen timestamp to prevent look-ahead bias during backtesting.
+          </p>
+
+          <div class="date-slider-box">
+            <div class="flex items-center justify-between">
+              <span class="t-small t-muted">Historical Cutoff Date:</span>
+              <span id="cutoff-date-val" class="t-mono t-cyan" style="font-weight:700;font-size:1.125rem">January 15, 2024</span>
+            </div>
+            <input type="range" id="timemachine-range" min="2020" max="2025" step="0.25" value="2024" style="accent-color:var(--violet);cursor:pointer">
+            <div class="flex items-center justify-between t-xs t-muted">
+              <span>Jan 2020</span>
+              <span>Jan 2022</span>
+              <span class="t-violet" style="font-weight:700">Jan 2024</span>
+              <span>Aug 2025 (Present)</span>
+            </div>
+          </div>
+
+          <button class="btn btn-violet btn-lg" onclick="toast.research('Running research replay as of Jan 15, 2024...')">
+            ⚡ Replay Research As Of Cutoff Date
+          </button>
+        </div>
+
+        <div style="height:var(--space-12)"></div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast-container" class="toast-container" role="status" aria-live="polite"></div>
+
+<script src="js/nav.js"></script>
+<script>
+  const range = document.getElementById('timemachine-range');
+  const val = document.getElementById('cutoff-date-val');
+  if (range && val) {
+    range.addEventListener('input', (e) => {
+      const year = parseFloat(e.target.value);
+      const yearInt = Math.floor(year);
+      const frac = year - yearInt;
+      const months = ['January', 'April', 'July', 'October'];
+      const monthStr = months[Math.floor(frac * 4)] || 'January';
+      val.textContent = `${monthStr} 15, ${yearInt}`;
+    });
+  }
+
+  function checkMobile() {
+    const btn = document.getElementById('mobile-menu-btn');
+    if (btn) btn.style.display = window.innerWidth <= 768 ? 'flex' : 'none';
+  }
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quantitative Analysis Workspace — EquiMind</title>
+  <meta name="description" content="100% deterministic Python math engine results: Technical Analysis, Risk, Time Series, Alpha Lab, Causal Engine, Monte Carlo, Portfolio Optimization.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/quantitative.css">
+</head>
+<body>
+
+<div id="nav-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:150;backdrop-filter:blur(4px)" onclick="nav.closeMobile()"></div>
+
+<div class="app-shell">
+
+  <!-- ── LEFT NAV ── -->
+  <nav id="nav-sidebar" class="nav-sidebar" role="navigation" aria-label="Main navigation">
+    <div class="nav-logo">
+      <a href="index.html" class="nav-logo-icon" style="text-decoration:none">E</a>
+      <span class="nav-logo-text">EquiMind</span>
+    </div>
+    <div class="nav-body">
+      <span class="nav-group-label">Workspace</span>
+      <a href="index.html"       class="nav-item" data-page="index.html"><span class="nav-item-icon">🏠</span><span class="nav-item-label">Home</span></a>
+      <a href="research.html"    class="nav-item" data-page="research.html"><span class="nav-item-icon">🔬</span><span class="nav-item-label">Research</span></a>
+      <a href="live.html"        class="nav-item" data-page="live.html"><span class="nav-item-icon">⚡</span><span class="nav-item-label">Live Execution</span></a>
+      <span class="nav-group-label">Intelligence</span>
+      <a href="evidence.html"    class="nav-item" data-page="evidence.html"><span class="nav-item-icon">🕸️</span><span class="nav-item-label">Evidence Graph</span></a>
+      <a href="quantitative.html"class="nav-item" data-page="quantitative.html"><span class="nav-item-icon">📐</span><span class="nav-item-label">Quantitative</span></a>
+      <a href="committee.html"   class="nav-item" data-page="committee.html"><span class="nav-item-icon">⚔️</span><span class="nav-item-label">Committee</span></a>
+      <a href="portfolio.html"   class="nav-item" data-page="portfolio.html"><span class="nav-item-icon">💼</span><span class="nav-item-label">Portfolio</span></a>
+      <span class="nav-group-label">History</span>
+      <a href="memory.html"      class="nav-item" data-page="memory.html"><span class="nav-item-icon">🧠</span><span class="nav-item-label">Memory</span></a>
+      <a href="predictions.html" class="nav-item" data-page="predictions.html"><span class="nav-item-icon">📋</span><span class="nav-item-label">Predictions</span></a>
+      <a href="timemachine.html" class="nav-item" data-page="timemachine.html"><span class="nav-item-icon">⏳</span><span class="nav-item-label">Time Machine</span></a>
+      <span class="nav-group-label">System</span>
+      <a href="settings.html"    class="nav-item" data-page="settings.html"><span class="nav-item-icon">⚙️</span><span class="nav-item-label">Settings</span></a>
+    </div>
+    <div class="nav-footer">
+      <div class="nav-item" style="gap:var(--space-3);color:var(--text-muted);font-size:0.75rem">
+        <span class="status-dot live"></span>
+        <span class="nav-item-label">All systems operational</span>
+      </div>
+      <div id="nav-collapse-btn" class="nav-collapse-btn" tabindex="0" role="button" aria-label="Toggle sidebar">
+        <span class="nav-collapse-icon nav-item-icon">◀</span>
+        <span class="nav-item-label t-small">Collapse sidebar</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── MAIN CONTENT ── -->
+  <main class="main-content">
+
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <button id="mobile-menu-btn" class="btn btn-ghost btn-icon" style="display:none" aria-label="Open nav">☰</button>
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a href="index.html" class="breadcrumb-sep" style="color:var(--text-muted)">Home</a>
+          <span class="breadcrumb-sep">›</span>
+          <span class="breadcrumb-current">Quantitative Workspace</span>
+        </nav>
+      </div>
+      <div class="top-bar-right">
+        <span class="badge badge-green" style="gap:5px">
+          <span class="status-dot live"></span>
+          100% Deterministic Math (No LLM Math)
+        </span>
+      </div>
+    </header>
+
+    <!-- Page Content Container -->
+    <div class="page-content">
+      <div class="quant-container">
+
+        <!-- Header -->
+        <div class="quant-header">
+          <div>
+            <h1 class="t-h1">Quantitative Engine Suite (`equimind.quantitative`)</h1>
+            <p class="t-secondary" style="margin-top:4px">
+              Deterministic numpy/scipy models for NVDA · Zero LLM mathematical hallucinations
+            </p>
+          </div>
+          <span class="ticker-chip" style="font-size:0.875rem">NVDA · $512.40</span>
+        </div>
+
+        <!-- 9 Quantitative Panels Grid -->
+        <div class="quant-grid">
+
+          <!-- 1. Technical Analysis Engine -->
+          <div class="quant-card">
+            <div class="quant-card-header">
+              <span class="quant-card-title">📈 1. Technical Engine</span>
+              <span class="badge badge-cyan">RSI · MACD · Bollinger</span>
+            </div>
+            <div class="stat-grid-4">
+              <div class="mini-stat">
+                <span class="mini-stat-lbl">RSI (14)</span>
+                <span class="mini-stat-val t-cyan">68.4</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-stat-lbl">MACD Hist</span>
+                <span class="mini-stat-val t-green">+2.34</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-stat-lbl">BB Width</span>
+                <span class="mini-stat-val">8.2%</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-stat-lbl">ATR (14)</span>
+                <span class="mini-stat-val">$12.80</span>
+              </div>
+            </div>
+            <div class="t-small t-muted">
+              Technical indicator calculation derived from 15-year daily OHLCV series. Price remains above 20-day SMA ($488.20) with expanding volatility bands.
+            </div>
+          </div>
+
+          <!-- 2. Fundamental Engine -->
+          <div class="quant-card">
+            <div class="quant-card-header">
+              <span class="quant-card-title">📊 2. Fundamental Engine</span>
+              <span class="badge badge-green">Piotroski 8/9 · Safe</span>
+            </div>
+            <div class="stat-grid-4">
+              <div class="mini-stat">
+                <span class="mini-stat-lbl">Piotroski F</span>
+                <span class="mini-stat-val t-green">8 / 9</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-stat-lbl">Altman Z-Score</span>
+                <span class="mini-stat-val t-green">4.82</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-stat-lbl">ROE</span>
+                <span class="mini-stat-val t-green">68.4%</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-stat-lbl">P/E Ratio</span>
+                <span class="mini-stat-val t-amber">42.3x</span>
+              </div>
+            </div>
+
+            <!-- Piotroski 9-Criteria Grid -->
+            <div class="t-xs t-muted" style="margin-top:var(--space-1)">Piotroski Criteria Breakdown:</div>
+            <div class="piotroski-grid">
+              <div class="piotroski-box passed" title="ROA > 0 ✓">ROA</div>
+              <div class="piotroski-box passed" title="CFO > 0 ✓">CFO</div>
+              <div class="piotroski-box passed" title="ΔROA > 0 ✓">ΔROA</div>
+              <div class="piotroski-box passed" title="CFO > ROA ✓">Accr</div>
+              <div class="piotroski-box passed" title="ΔLeverage < 0 ✓">Lev</div>
+              <div class="piotroski-box passed" title="ΔLiquidity > 0 ✓">Liq</div>
+              <div class="piotroski-box failed" title="No Share Dilution ❌">Dil</div>
+              <div class="piotroski-box passed" title="ΔMargin > 0 ✓">Mrg</div>
+              <div class="piotroski-box passed" title="ΔTurnover > 0 ✓">Turn</div>
+            </div>
+          </div>
+
+          <!-- 3. Risk Engine -->
+          <div class="quant-card">
+            <div class="quant-card-header">
+              <span class="quant-card-title">🛡️ 3. Institutional Risk Engine</span>
+              <span class="badge badge-cyan">Sharpe 2.14</span>
+            </div>
+            <div class="stat-grid-4">
+              <div class="mini-stat">
+                <span class="mini-stat-lbl">Sharpe Ratio</span>
+                <span class="mini-stat-val t-green">2.14</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-stat-lbl">Sortino Ratio</span>
+                <span class="mini-stat-val t-green">3.28</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-stat-lbl">Daily VaR 95%</span>
+                <span class="mini-stat-val t-red">-$14.20</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-stat-lbl">CVaR 95%</span>
+                <span class="mini-stat-val t-red">-$21.80</span>
+              </div>
+            </div>
+            <div class="t-small t-secondary">
+              Expected Tail Loss (CVaR) bounded at 4.2% daily portfolio impact. Downside deviation significantly lower than upside volatility.
+            </div>
+          </div>
+
+          <!-- 4. Advanced Time Series Engine -->
+          <div class="quant-card">
+            <div class="quant-card-header">
+              <span class="quant-card-title">⏳ 4. Time Series Research</span>
+              <span class="badge badge-green">HMM: BULL_TREND</span>
+            </div>
+            <div class="canvas-wrapper">
+              <canvas id="canvas-kalman"></canvas>
+            </div>
+            <div class="flex items-center justify-between t-xs t-muted">
+              <span>Cyan line = Kalman Filtered Signal</span>
+              <span>Dashed line = Raw Daily Price</span>
+            </div>
+          </div>
+
+          <!-- 5. Alpha Research Lab -->
+          <div class="quant-card">
+            <div class="quant-card-header">
+              <span class="quant-card-title">🧪 5. Alpha Research Lab</span>
+              <span class="badge badge-violet">IC = 0.34</span>
+            </div>
+            <div class="canvas-wrapper">
+              <canvas id="canvas-alpha-bars"></canvas>
+            </div>
+          </div>
+
+          <!-- 6. Causal Reasoning Engine -->
+          <div class="quant-card">
+            <div class="quant-card-header">
+              <span class="quant-card-title">🕸️ 6. Causal Reasoning Engine</span>
+              <span class="badge badge-green">Spurious: NO ✓</span>
+            </div>
+            <div class="causal-comparison">
+              <div class="causal-bar-row">
+                <span class="causal-bar-label">Raw Correlation</span>
+                <div class="causal-bar-outer">
+                  <div class="causal-bar-fill" style="width:78%;background:var(--amber)"></div>
+                </div>
+                <span class="t-mono t-amber" style="font-weight:700">+0.78</span>
+              </div>
+
+              <div class="causal-bar-row">
+                <span class="causal-bar-label">Direct Causal Effect</span>
+                <div class="causal-bar-outer">
+                  <div class="causal-bar-fill" style="width:82%;background:var(--green)"></div>
+                </div>
+                <span class="t-mono t-green" style="font-weight:700">+0.82</span>
+              </div>
+            </div>
+            <div class="t-small t-muted">
+              Structural Causal Model (SCM) backdoor adjustment applied with respect to SOX Semiconductor Index confounder Z. Relationship is genuine direct causality.
+            </div>
+          </div>
+
+          <!-- 7. Monte Carlo Stochastic Simulator -->
+          <div class="quant-card" style="grid-column: 1 / -1">
+            <div class="quant-card-header">
+              <span class="quant-card-title">🎲 7. Monte Carlo Simulator (1,000 Paths)</span>
+              <span class="badge badge-cyan">30-Day Probability Envelope</span>
+            </div>
+            <div class="canvas-wrapper" style="height:260px">
+              <canvas id="canvas-monte-carlo"></canvas>
+            </div>
+            <div class="stat-grid-4">
+              <div class="mini-stat">
+                <span class="mini-stat-lbl">P05 Downside</span>
+                <span class="mini-stat-val t-red">$412.30</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-stat-lbl">Median Path</span>
+                <span class="mini-stat-val t-cyan">$519.40</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-stat-lbl">P95 Upside</span>
+                <span class="mini-stat-val t-green">$648.20</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-stat-lbl">P(Profit > 0)</span>
+                <span class="mini-stat-val t-green">78.4%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 8. Portfolio Optimizer -->
+          <div class="quant-card">
+            <div class="quant-card-header">
+              <span class="quant-card-title">💼 8. Portfolio Optimization</span>
+              <span class="badge badge-violet">Black-Litterman</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center">
+              <div class="canvas-wrapper" style="width:220px;height:220px">
+                <canvas id="canvas-portfolio-donut"></canvas>
+              </div>
+            </div>
+            <div class="t-small t-secondary text-center">
+              Kelly Fraction: <strong>12.4%</strong> · Diversification Score: <strong>0.74</strong>
+            </div>
+          </div>
+
+          <!-- 9. FeatureStore -->
+          <div class="quant-card">
+            <div class="quant-card-header">
+              <span class="quant-card-title">⚗️ 9. FeatureStore & Normalizer</span>
+              <span class="badge badge-neutral">24 Dimensions</span>
+            </div>
+            <div class="stat-grid-4">
+              <div class="mini-stat">
+                <span class="mini-stat-lbl">Total Feats</span>
+                <span class="mini-stat-val">24</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-stat-lbl">Mean μ</span>
+                <span class="mini-stat-val">0.00</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-stat-lbl">Std Dev σ</span>
+                <span class="mini-stat-val">1.00</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-stat-lbl">Norm Method</span>
+                <span class="mini-stat-val t-cyan">Z-Score</span>
+              </div>
+            </div>
+            <div class="t-small t-muted">
+              Preprocessed feature vectors stored with timestamp metadata to prevent temporal leakage into ML prediction pipelines.
+            </div>
+          </div>
+
+        </div><!-- end quant-grid -->
+
+        <div style="height:var(--space-12)"></div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast-container" class="toast-container" role="status" aria-live="polite"></div>
+
+<script src="js/nav.js"></script>
+<script src="js/charts.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. Line Overlay: Kalman Filter vs Raw Price
+    const rawPrices = [480, 482, 478, 489, 495, 491, 502, 508, 504, 512, 519, 514, 524, 520, 528];
+    const kalmanPrices = [480, 481, 480, 484, 488, 490, 495, 500, 502, 506, 510, 512, 517, 519, 523];
+    QuantCharts.drawLineOverlay('canvas-kalman', rawPrices, kalmanPrices);
+
+    // 2. Alpha Factor Horizontal Bars
+    QuantCharts.drawHorizontalBars('canvas-alpha-bars');
+
+    // 3. Monte Carlo Envelope
+    QuantCharts.drawMonteCarloCone('canvas-monte-carlo', 512.40, 30);
+
+    // 4. Portfolio Donut
+    QuantCharts.drawDonutChart('canvas-portfolio-donut');
+  });
+
+  function checkMobile() {
+    const btn = document.getElementById('mobile-menu-btn');
+    if (btn) btn.style.display = window.innerWidth <= 768 ? 'flex' : 'none';
+  }
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+</script>
+
+</body>
+</html>

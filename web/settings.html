@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings — EquiMind</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/layout.css">
+</head>
+<body>
+
+<div id="nav-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:150;backdrop-filter:blur(4px)" onclick="nav.closeMobile()"></div>
+
+<div class="app-shell">
+  <nav id="nav-sidebar" class="nav-sidebar">
+    <div class="nav-logo"><a href="index.html" class="nav-logo-icon" style="text-decoration:none">E</a><span class="nav-logo-text">EquiMind</span></div>
+    <div class="nav-body">
+      <span class="nav-group-label">Workspace</span>
+      <a href="index.html" class="nav-item" data-page="index.html"><span class="nav-item-icon">🏠</span><span class="nav-item-label">Home</span></a>
+      <a href="research.html" class="nav-item" data-page="research.html"><span class="nav-item-icon">🔬</span><span class="nav-item-label">Research</span></a>
+      <a href="live.html" class="nav-item" data-page="live.html"><span class="nav-item-icon">⚡</span><span class="nav-item-label">Live Execution</span></a>
+      <span class="nav-group-label">Intelligence</span>
+      <a href="evidence.html" class="nav-item" data-page="evidence.html"><span class="nav-item-icon">🕸️</span><span class="nav-item-label">Evidence Graph</span></a>
+      <a href="quantitative.html" class="nav-item" data-page="quantitative.html"><span class="nav-item-icon">📐</span><span class="nav-item-label">Quantitative</span></a>
+      <a href="committee.html" class="nav-item" data-page="committee.html"><span class="nav-item-icon">⚔️</span><span class="nav-item-label">Committee</span></a>
+      <a href="portfolio.html" class="nav-item" data-page="portfolio.html"><span class="nav-item-icon">💼</span><span class="nav-item-label">Portfolio</span></a>
+      <span class="nav-group-label">History</span>
+      <a href="memory.html" class="nav-item" data-page="memory.html"><span class="nav-item-icon">🧠</span><span class="nav-item-label">Memory</span></a>
+      <a href="predictions.html" class="nav-item" data-page="predictions.html"><span class="nav-item-icon">📋</span><span class="nav-item-label">Predictions</span></a>
+      <a href="timemachine.html" class="nav-item" data-page="timemachine.html"><span class="nav-item-icon">⏳</span><span class="nav-item-label">Time Machine</span></a>
+      <span class="nav-group-label">System</span>
+      <a href="settings.html" class="nav-item" data-page="settings.html"><span class="nav-item-icon">⚙️</span><span class="nav-item-label">Settings</span></a>
+    </div>
+    <div class="nav-footer">
+      <div class="nav-item" style="gap:var(--space-3);color:var(--text-muted);font-size:0.75rem"><span class="status-dot live"></span><span class="nav-item-label">All systems operational</span></div>
+      <div id="nav-collapse-btn" class="nav-collapse-btn"><span class="nav-collapse-icon nav-item-icon">◀</span><span class="nav-item-label t-small">Collapse sidebar</span></div>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <button id="mobile-menu-btn" class="btn btn-ghost btn-icon" style="display:none">☰</button>
+        <nav class="breadcrumb"><a href="index.html" class="breadcrumb-sep" style="color:var(--text-muted)">Home</a><span class="breadcrumb-sep">›</span><span class="breadcrumb-current">Provider & System Settings</span></nav>
+      </div>
+      <div class="top-bar-right"><button class="btn btn-primary btn-sm" onclick="toast.success('Settings saved successfully!')">Save Changes</button></div>
+    </header>
+
+    <div class="page-content">
+      <div class="container" style="padding-top:var(--space-8);max-width:800px">
+        <h1 class="t-h1">Provider & Engine Configuration</h1>
+        <p class="t-secondary" style="margin-top:4px">Configure model adapters, API keys, and quantitative engine parameters.</p>
+
+        <div style="display:flex;flex-direction:column;gap:var(--space-6);margin-top:var(--space-8)">
+          <div class="card p-6 flex flex-col gap-4">
+            <h2 class="t-h3">LLM Provider Selection</h2>
+            <div class="flex flex-col gap-2">
+              <label class="t-small t-muted">Active Default Provider</label>
+              <select class="input">
+                <option value="mock">Mock Engine (Deterministic offline testing)</option>
+                <option value="openai">OpenAI (gpt-4o / o3-mini)</option>
+                <option value="gemini">Google Gemini (gemini-1.5-pro)</option>
+                <option value="claude">Anthropic Claude (claude-3-5-sonnet)</option>
+                <option value="ollama">Ollama Local (llama3.1)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="card p-6 flex flex-col gap-4">
+            <h2 class="t-h3">API Keys</h2>
+            <div class="flex flex-col gap-3">
+              <div>
+                <label class="t-small t-muted">OpenAI API Key</label>
+                <input type="password" class="input" placeholder="sk-proj-...">
+              </div>
+              <div>
+                <label class="t-small t-muted">Google Gemini API Key</label>
+                <input type="password" class="input" placeholder="AIzaSy...">
+              </div>
+              <div>
+                <label class="t-small t-muted">Anthropic Claude API Key</label>
+                <input type="password" class="input" placeholder="sk-ant-...">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+<script src="js/nav.js"></script>
+<script>
+  function checkMobile() {
+    const btn = document.getElementById('mobile-menu-btn');
+    if (btn) btn.style.display = window.innerWidth <= 768 ? 'flex' : 'none';
+  }
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+</script>
+</body>
+</html>

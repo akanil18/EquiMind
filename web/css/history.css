@@ -1,0 +1,94 @@
+/* =========================================================
+   EquiMind History & Memory UIs — history.css
+   Memory Explorer, Prediction Registry, Time Machine styles
+   ========================================================= */
+
+.history-container {
+  padding: var(--space-6) var(--space-8);
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* Memory Tree Tier Cards */
+.memory-tier-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  transition: all var(--ease-normal);
+}
+.memory-tier-card:hover {
+  border-color: var(--border-strong);
+  background: var(--bg-card-hover);
+}
+
+.memory-tier-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Predictions Table */
+.predictions-table-wrapper {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.predictions-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.predictions-table th, .predictions-table td {
+  padding: var(--space-4) var(--space-5);
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.predictions-table th {
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+.predictions-table td {
+  font-size: 0.875rem;
+}
+
+/* Time Machine Control Panel */
+.timemachine-hero {
+  padding: var(--space-8);
+  background: radial-gradient(ellipse at 50% 0%, rgba(124, 58, 237, 0.15) 0%, transparent 70%), var(--bg-card);
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  border-radius: var(--radius-xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-5);
+}
+
+.date-slider-box {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--bg-glass);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+}
+
+@media (max-width: 768px) {
+  .history-container { padding: var(--space-4); }
+  .predictions-table th, .predictions-table td { padding: var(--space-3); font-size: 0.75rem; }
+}
