@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  equimind-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: equimind_server
+    ports:
+      - "8000:8000"
+    environment:
+      - EQUIMIND_DEFAULT_PROVIDER=openai
+      - EQUIMIND_MAX_CONTEXT_TOKENS=32000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
