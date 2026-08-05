@@ -7,6 +7,7 @@ from .fundamental import FundamentalEngine
 from .risk import RiskEngine
 from .time_series import TimeSeriesResearchEngine, TimeSeriesForecastResult, MarketRegime
 from .alpha_lab import AlphaResearchLab, AlphaFactor, FactorCategory
+from .causal_engine import CausalReasoningEngine, CausalNodeType, CausalEdge, CausalAnalysisResult
 
 __all__ = [
     "TechnicalEngine",
@@ -18,4 +19,8 @@ __all__ = [
     "AlphaResearchLab",
     "AlphaFactor",
     "FactorCategory",
+    "CausalReasoningEngine",
+    "CausalNodeType",
+    "CausalEdge",
+    "CausalAnalysisResult",
 ]
