@@ -9,6 +9,8 @@
 | **Phase 5** | **Investment Committee Debate Engine (Bull vs Bear vs Judge)** | 🟢 Completed | Bull Agent, Bear Agent, Judge Agent, structured explainable report generator with source citations. |
 | **Phase 6** | **Hierarchical Memory Pipeline & Delta-Research Engine** | 🟢 Completed | Multi-tier memory (Raw -> Daily -> Weekly -> Monthly -> Quarterly Persistent Knowledge), timestamp diff & delta research update engine. |
 | **Phase 7** | **Unified Orchestrator, CLI, API & Interactive Web Dashboard** | 🟢 Completed | EquiMindEngine, CLI runner, FastAPI backend, dynamic interactive Web Dashboard UI. |
+| **Phase 8** | **Self-Reflection & Recommendation Calibration Engine** | 🟢 Completed | SelfReflectionAgent, outcome accuracy evaluator, bias detection, judge weight calibration, unit tests. |
+| **Phase 9** | **Multi-Domain Framework Adaptability Suite** | 🟢 Completed | Domain-agnostic schemas for Legal Research, Healthcare/Medical Review, and Cybersecurity Threat Intelligence. |
 
 ---
 
