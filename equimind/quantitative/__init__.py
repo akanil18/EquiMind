@@ -9,6 +9,7 @@ from .time_series import TimeSeriesResearchEngine, TimeSeriesForecastResult, Mar
 from .alpha_lab import AlphaResearchLab, AlphaFactor, FactorCategory
 from .causal_engine import CausalReasoningEngine, CausalNodeType, CausalEdge, CausalAnalysisResult
 from .monte_carlo import MonteCarloSimulator, MonteCarloSimulationResult
+from .portfolio_optimizer import PortfolioOptimizer, PortfolioOptimizationResult, OptimizationMethod
 
 __all__ = [
     "TechnicalEngine",
@@ -26,4 +27,7 @@ __all__ = [
     "CausalAnalysisResult",
     "MonteCarloSimulator",
     "MonteCarloSimulationResult",
+    "PortfolioOptimizer",
+    "PortfolioOptimizationResult",
+    "OptimizationMethod",
 ]
