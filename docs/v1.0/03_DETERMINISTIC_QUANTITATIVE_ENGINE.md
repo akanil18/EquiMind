@@ -1,6 +1,6 @@
-# EquiMind v1.0: Deterministic Quantitative Engine (`equimind.quantitative`)
+# EquiMind v1.0: Deterministic Quantitative & Advanced Institutional Engines (`equimind.quantitative`)
 
-EquiMind v1.0 strictly eliminates LLM mathematical hallucinations by running 100% deterministic Python math calculators.
+EquiMind v1.0 strictly eliminates LLM mathematical hallucinations by running 100% deterministic Python math calculators using `numpy`, `scipy`, and `pandas`.
 
 ---
 
@@ -52,5 +52,54 @@ Calculates statistical risk distributions:
 - **Max Drawdown**: Maximum peak-to-trough decline.
 - **Daily Value at Risk (VaR 95% & 99%)**: 5th and 1st percentile daily return boundaries.
 - **Conditional VaR (CVaR 95%)**: Expected tail loss beyond VaR.
-- **Alpha & Beta**: Covariance relative to benchmark index returns.
-- **30-Day Projected Return Distribution**: Expected return with 95% confidence intervals ($\mu \pm 1.96 \sigma$).
+
+---
+
+## ⏳ Advanced Time Series Research Engine (`equimind.quantitative.time_series`)
+
+- **1D Kalman Filter**: State-space signal noise reduction (`apply_kalman_filter`).
+- **Hidden Markov Model (HMM) Market Regime Classifier**: Classifies states into `BULL_TREND`, `BEAR_TREND`, `HIGH_VOLATILITY_SIDEWAYS`.
+- **GARCH(1,1) Volatility Model**: Computes conditional volatility estimates.
+- **Ensemble Forecast Framework**: Combines trend drift, Kalman filter, and GARCH volatility bounds to output 95% confidence intervals ($\mu \pm 1.96 \sigma$).
+
+---
+
+## 🧪 Alpha Research Laboratory (`equimind.quantitative.alpha_lab`)
+
+- **Information Coefficient (IC)**: Pearson correlation between factor signals and forward asset returns.
+- **Rank IC**: Spearman rank correlation for non-linear alpha relationships.
+- **Factor Evaluation & Decay**: Evaluates signal decay half-life and flags statistical significance ($|Rank IC| \ge 0.05$ and $|Sharpe| \ge 1.0$).
+- **Alpha Factor Ranker**: Ranks candidate alpha factors across `MOMENTUM`, `VALUE`, `QUALITY`, `ALTERNATIVE`, `DEVELOPER_VELOCITY`, `MACRO_SENSITIVITY`.
+
+---
+
+## 🔬 Feature Engineering Platform & FeatureStore (`equimind.features`)
+
+- **Evidence Feature Extractor**: Transforms evidence nodes into numerical feature vectors (`avg_sentiment_score`, `bullish_sentiment_ratio`, `avg_credibility`, `verified_official_count`).
+- **Price Feature Extractor**: Converts price series into rolling statistical features (`price_return_1d`, `rolling_volatility`, `price_momentum_ratio`).
+- **Z-Score Normalization**: Standardizes raw features into zero-mean, unit-variance vectors.
+
+---
+
+## 🎯 Structural Causal Reasoning Engine (`equimind.quantitative.causal_engine`)
+
+- **Do-Calculus Interventions ($P(Y | \text{do}(X))$)**: Partial regression controlling for confounding variable $Z$.
+- **Spurious Correlation Classifier**: Eliminates false market correlations driven by shared macro/sector confounders rather than direct mechanisms.
+
+---
+
+## 🎲 Monte Carlo Stochastic Simulator (`equimind.quantitative.monte_carlo`)
+
+- **Geometric Brownian Motion & Jump-Diffusion Simulator**: Simulates 1,000+ stochastic price paths incorporating drift, volatility, and jump shocks.
+- **Risk/Reward Boundaries**: Computes downside risk (P05) and upside reward (P95) thresholds.
+- **Probability of Profit ($P(S_T > S_0)$)**: Probability of positive final return.
+
+---
+
+## 💼 Portfolio Construction & Optimization Engine (`equimind.quantitative.portfolio_optimizer`)
+
+- **Markowitz Mean-Variance Tangency Solver (`MEAN_VARIANCE`)**: Maximizes portfolio Sharpe ratio ($\max_w \frac{w^T \mu - R_f}{\sqrt{w^T \Sigma w}}$).
+- **Inverse-Volatility Risk Parity Allocator (`RISK_PARITY`)**: Equalizes risk contribution ($w_i \propto 1 / \sigma_i$).
+- **Black-Litterman Model (`BLACK_LITTERMAN`)**: Blends equilibrium market returns with investor/agent view vectors.
+- **Kelly Criterion Position Sizer (`KELLY_CRITERION`)**: Fractional Kelly allocation ($f^* = \frac{p \cdot b - q}{b}$).
+- **Herfindahl Diversification Score**: Measures portfolio concentration ($1 - \sum w_i^2$).
