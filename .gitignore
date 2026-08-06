@@ -17,6 +17,15 @@ __pycache__/
 .coverage
 htmlcov/
 .mypy_cache/
+.equimind_cache/
+
+# C++ Native Build & Binary Output
+*.so
+*.pyd
+*.dylib
+*.dll
+equimind/native/build/
+equimind/equimind_native*.so
 
 # IDE & Editor Settings
 .vscode/

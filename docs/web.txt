@@ -1,0 +1,156 @@
+UI/UX Design Specification Document
+Design Philosophy & Vision
+
+The user interface of EquiMind should not resemble a traditional stock trading application, financial dashboard, or chatbot. Most existing financial platforms focus on presenting market data through charts, tables, watchlists, and isolated metrics, while AI-powered financial applications typically expose a single chat interface where users ask questions and receive generated responses. This approach hides the research process and forces users to trust the final recommendation without understanding how it was produced. EquiMind aims to fundamentally change this interaction model.
+
+The interface should represent an AI-Powered Financial Research Operating System rather than a stock analysis website. Every screen should reinforce the feeling that the user is interacting with a team of institutional researchers instead of a single AI assistant. The experience should communicate transparency, trustworthiness, intelligence, and professionalism. Rather than hiding computation behind loading indicators, the platform should continuously expose planning decisions, research progress, quantitative calculations, evidence collection, reasoning conflicts, and final conclusions in real time.
+
+The design language should combine the elegance and minimalism of modern portfolio websites such as ayushjha.online, the productivity-focused workspace philosophy of Notion, the live execution experience of Cursor IDE, the responsiveness of Linear, the document organization of Obsidian, and the structured information hierarchy found in Bloomberg Terminal, while avoiding unnecessary complexity. Every animation, transition, and interaction should reinforce the idea that research is actively being performed rather than simply displaying static information.
+
+Overall Layout & Navigation
+
+The overall interface should be organized as a research workspace rather than a dashboard. Instead of filling the screen with dozens of widgets, charts, and menus, the layout should prioritize clarity, focus, and progressive disclosure of information. The interface should guide users through the complete research lifecycle, beginning with planning, continuing through evidence collection and quantitative analysis, and concluding with explainable recommendations.
+
+The application should maintain a persistent left navigation panel containing major workspaces such as Home, Research, Live Execution, Memory, Evidence Graph, Portfolio, Historical Backtesting, Prediction Registry, Settings, and Documentation. This navigation should remain minimal and visually unobtrusive while allowing instant movement between different research environments.
+
+The central workspace should adapt dynamically depending on the user's current activity. During research execution, the main workspace should become a live execution environment. During report viewing, it should transform into a document-oriented interface. During evidence exploration, it should become an interactive knowledge graph. This adaptive workspace approach prevents unnecessary context switching while keeping the overall experience clean and intuitive.
+
+Landing Page
+
+The landing page should immediately communicate the identity of EquiMind as an AI Financial Research Operating System. Rather than overwhelming users with market statistics or financial charts, the homepage should focus on simplicity and purpose. A large search interface should encourage users to begin research naturally by asking investment-related questions such as "Analyze NVIDIA for long-term investment" or "Compare Tesla and BYD."
+
+Below the primary search interface, the page should present recently generated research reports, bookmarked companies, trending research topics, and personalized recommendations. Recent activity should remain lightweight, allowing users to quickly resume unfinished research sessions without creating visual clutter.
+
+The landing page should intentionally avoid displaying unnecessary numerical data. Instead, it should emphasize the research workflow itself, making users feel that they are entering a sophisticated analytical environment rather than opening another financial website.
+
+Research Workspace
+
+The Research Workspace should become the central environment where users spend most of their time. Unlike traditional chatbot interfaces where messages scroll vertically, EquiMind should organize research into structured panels that evolve dynamically as new information becomes available.
+
+The workspace should initially display the user's query together with the planner's interpretation of the research objective. As research progresses, additional sections should automatically appear rather than replacing previous content. This allows users to observe the evolution of the investigation from initial planning to final recommendation.
+
+Each completed research stage should remain visible and expandable, allowing users to revisit earlier findings without interrupting the current workflow. The workspace should therefore behave more like a collaborative research notebook than a conversational chat application.
+
+Live Research Execution Interface
+
+One of the defining features of EquiMind should be complete transparency during research execution. Instead of displaying a generic loading spinner while agents operate in the background, the interface should continuously stream the activities of every research team.
+
+As soon as a research request begins, the planner should announce its understanding of the problem, identify the company's sector, determine the investment horizon, estimate required research teams, and explain why specific analyses are being performed or skipped. As research teams begin execution, each completed task should immediately appear within the execution timeline.
+
+Users should observe market data retrieval, macroeconomic analysis, evidence collection, feature engineering, quantitative calculations, alpha factor evaluation, portfolio optimization, and debate progress as independent events occurring in real time. This transparency significantly improves user trust while demonstrating the complexity of the underlying orchestration system.
+
+Dynamic Research DAG Visualization
+
+Rather than hiding orchestration logic, EquiMind should expose its execution graph through an interactive Directed Acyclic Graph visualization. Every research request should generate a unique execution graph representing the workflow selected by the planner.
+
+Each node within the graph should represent a specialized research team, quantitative engine, memory retrieval component, verification process, or reasoning agent. Nodes should transition through different visual states including waiting, executing, completed, failed, or skipped. Connecting edges should animate continuously as information flows through the research pipeline.
+
+Users should be able to click any node to inspect execution logs, intermediate outputs, execution duration, consumed resources, and generated evidence. This transforms the orchestration layer into an understandable visual system rather than an invisible implementation detail.
+
+Research Timeline
+
+Every important event generated during research should appear inside a chronological execution timeline. Each timeline entry should include timestamps, responsible agents, executed operations, retrieved evidence, confidence estimates, and relevant quantitative outputs.
+
+Rather than presenting vague messages such as "Thinking..." or "Analyzing...", the timeline should display meaningful research events such as "Reasoning Planner identified Semiconductor company," "Market Data Team completed 15 years of historical price retrieval," "Monte Carlo simulation finished with 1,000 stochastic paths," or "Judge Agent resolved conflicting evidence."
+
+The timeline should function as a permanent audit trail that users can revisit long after research has completed.
+
+Evidence Explorer
+
+The Evidence Explorer should become one of the most important interfaces within the platform. Every collected observation should appear as a structured evidence card rather than plain text. Each card should display its title, original source, publication timestamp, credibility level, confidence score, sentiment classification, affected companies, related sectors, and verification status.
+
+Users should be able to expand individual evidence cards to inspect complete articles, SEC filings, earnings transcripts, Reddit discussions, GitHub commits, official announcements, or other original sources without leaving the platform. Relationships between evidence should also be visible, allowing users to understand how different observations support or contradict each other.
+
+Advanced filtering should enable users to search evidence by source type, credibility level, publication date, company, sentiment, confidence, or research category.
+
+Structured Knowledge Graph
+
+The Knowledge Graph should visualize relationships between companies, products, executives, macroeconomic variables, research reports, evidence nodes, and historical events. Rather than functioning as a static diagram, the graph should become fully interactive.
+
+Users should explore relationships by expanding neighboring nodes, filtering relationship types, searching entities, and highlighting evidence supporting each connection. Temporal controls should allow users to observe how relationships evolve over time, providing deeper understanding of complex financial ecosystems.
+
+The graph should also serve as a debugging interface for researchers interested in understanding how conclusions emerge from interconnected evidence rather than isolated observations.
+
+Quantitative Analysis Workspace
+
+The Quantitative Workspace should present deterministic analysis independently from LLM reasoning. Technical indicators, risk metrics, factor models, time-series forecasts, Monte Carlo simulations, causal analysis, portfolio optimization, and alpha evaluations should each occupy dedicated expandable modules.
+
+Rather than overwhelming users with raw numerical outputs, every metric should include contextual explanations, historical comparisons, confidence estimates, and interpretation guidelines. Interactive charts should support zooming, filtering, and scenario comparison while maintaining a clean visual hierarchy.
+
+This workspace should emphasize reproducibility by clearly distinguishing deterministic mathematical computations from language-model-generated explanations.
+
+Investment Committee Interface
+
+One of the most unique aspects of EquiMind should be the visualization of adversarial reasoning. Instead of hiding internal debate, the interface should explicitly present arguments generated by Bull, Bear, and Judge agents.
+
+Each side should independently present supporting evidence, quantitative metrics, identified opportunities, associated risks, and confidence estimates. The Judge interface should compare both positions, identify unsupported claims, resolve contradictions, estimate overall conviction, and explain how the final recommendation emerged.
+
+Users should clearly understand not only the recommendation itself but also why competing viewpoints were accepted or rejected.
+
+Explainable Research Report
+
+Research reports should resemble professionally written institutional equity research documents rather than AI-generated summaries. Each report should be organized into structured sections including Executive Summary, Company Overview, Market Analysis, Fundamental Analysis, Technical Analysis, Macroeconomic Context, Alternative Data Signals, Quantitative Models, Investment Committee Debate, Risk Assessment, Portfolio Considerations, and Final Recommendation.
+
+Every statement should contain traceable references linking directly to supporting evidence. Users should never encounter unsupported claims or hallucinated conclusions. Interactive citations should enable instant navigation to original evidence nodes.
+
+Memory Explorer
+
+The Memory Explorer should visualize the hierarchical memory architecture underlying EquiMind. Users should browse raw observations, daily summaries, weekly reports, monthly investment theses, quarterly analyses, and long-term persistent knowledge through an intuitive hierarchical interface.
+
+Instead of repeatedly generating identical analyses, users should observe how previous research evolves over time, what information has changed, which evidence has expired, and how investment theses adapt as new information becomes available.
+
+This interface transforms memory from an invisible implementation detail into an understandable research asset.
+
+Prediction Registry
+
+Every recommendation generated by the platform should automatically enter the Prediction Registry. Users should review historical recommendations together with original confidence estimates, supporting evidence, target price ranges, evaluation windows, realized outcomes, and calibration statistics.
+
+The registry should clearly distinguish successful predictions from unsuccessful ones while explaining why particular recommendations succeeded or failed. This continuous evaluation process strengthens user trust by demonstrating accountability rather than claiming perfect accuracy.
+
+Historical Time Machine
+
+The Historical Time Machine should allow users to perform research using only information available before a specified historical date. Interactive timeline controls should automatically filter evidence, market data, and macroeconomic information according to the selected point in time.
+
+This interface enables realistic backtesting while preventing information leakage. Researchers can objectively compare historical recommendations with actual market outcomes and evaluate improvements across different versions of the reasoning engine.
+
+Portfolio Workspace
+
+The Portfolio Workspace should extend beyond single-company research by allowing users to manage multiple investment ideas simultaneously. Individual company analyses should automatically integrate into portfolio-level risk assessments, diversification metrics, sector exposure analysis, factor decomposition, and optimization strategies.
+
+Interactive allocation visualizations should immediately update as users modify portfolio weights or introduce additional investment opportunities.
+
+Real-Time Collaboration & Notifications
+
+The interface should continuously notify users about important research milestones without interrupting their workflow. Notifications should remain subtle, informative, and actionable. Long-running research sessions should stream progress through WebSockets while allowing users to continue exploring previously generated reports simultaneously.
+
+Research execution should therefore feel alive rather than static.
+
+Design Language
+
+The visual identity of EquiMind should emphasize elegance, simplicity, and professionalism. Typography should become one of the strongest design elements, using generous spacing, large headings, minimal color palettes, and carefully balanced visual hierarchy. Dark mode should become the primary experience while maintaining excellent readability across extended research sessions.
+
+Animations should remain purposeful rather than decorative. Every transition should communicate system state, research progress, or information hierarchy. Components should fade, expand, collapse, and transition smoothly without distracting users from the research itself.
+
+Component System
+
+The interface should be constructed from reusable design components rather than page-specific implementations. Cards, timelines, evidence nodes, execution graphs, research reports, charts, notifications, filters, search components, and expandable sections should all share consistent styling, spacing, animations, and interaction patterns.
+
+This component-driven architecture ensures visual consistency while simplifying future expansion into additional research domains.
+
+Responsive Experience
+
+Although EquiMind primarily targets desktop research workflows, every interface should remain fully responsive. Tablets should preserve the workspace experience through adaptive layouts, while mobile devices should prioritize report viewing, research monitoring, and notifications rather than complete analytical workflows.
+
+The desktop experience should always remain the primary design target because institutional research naturally requires large amounts of simultaneously visible information.
+
+Accessibility
+
+Accessibility should remain a first-class design objective. Every interaction should support keyboard navigation, screen readers, high-contrast themes, scalable typography, focus indicators, semantic HTML, and color-independent communication. Research should remain accessible regardless of user abilities or device preferences.
+
+Future Vision
+
+The long-term vision for EquiMind's interface is to evolve beyond a financial dashboard into a collaborative AI Research Workspace. Users should eventually conduct investigations by interacting with research canvases, comparing multiple companies simultaneously, exploring evolving evidence graphs, collaborating with other researchers, replaying historical analyses, and observing intelligent agents continuously working in the background. Rather than functioning as another AI chatbot, the interface should become the primary workspace through which humans and AI collaborate to produce transparent, reproducible, and evidence-driven financial research.
+
+Ultimately, the UI should become one of EquiMind's strongest differentiators. The objective is not merely to display research results but to make the entire research process visible, understandable, interactive, and trustworthy, allowing users to experience institutional-quality financial research in a way that existing financial platforms and AI assistants do not provide.
+
+

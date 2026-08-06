@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
+import logging
+
 import numpy as np
 import pandas as pd
 
@@ -9,13 +11,27 @@ from equimind.evidence.schema import (
     AuthorCredibility,
     SentimentPolarity,
 )
-from equimind.quantitative.technical import TechnicalEngine
 from equimind.teams.base_team import ResearchTeam
 from equimind.providers.base import LLMProvider
+from equimind.adapters import YFinanceAdapter
+
+logger = logging.getLogger(__name__)
+
+# Try C++ optimized engine first, fall back to Python
+try:
+    from equimind.native import fast_technical, is_native_available
+    _USING_CPP = is_native_available()
+except ImportError:
+    _USING_CPP = False
 
 
 class MarketDataTeam(ResearchTeam):
-    """Specialized team collecting price data, liquidity, moving averages, and technical indicators."""
+    """Specialized team collecting real price data, liquidity, moving averages, and technical indicators.
+    
+    Data Sources:
+      - yfinance (real market data) with synthetic fallback
+      - C++ optimized technical indicator engine (with Python fallback)
+    """
 
     @property
     def team_name(self) -> str:
@@ -32,62 +48,117 @@ class MarketDataTeam(ResearchTeam):
         ref_date = as_of_date or datetime.now(timezone.utc)
         ticker_upper = ticker.upper()
 
-        # Generate synthetic historical prices for standard execution or backtest
-        df = self._generate_market_data(ticker_upper, ref_date)
+        # ── Fetch REAL market data via yfinance ────────────────
+        df = YFinanceAdapter.get_price_history(ticker_upper, period="2y", interval="1d")
+        
+        # Filter by as_of_date if provided (Time Machine support)
+        if as_of_date and not df.empty:
+            df = df[df.index <= pd.Timestamp(as_of_date)]
+        
+        if df.empty:
+            logger.warning(f"No price data for {ticker_upper}")
+            return []
 
-        # Compute deterministic technical indicators
-        tech_summary = TechnicalEngine.analyze_dataframe(df)
+        data_source = "yfinance (Real)" if len(df) > 100 else "synthetic fallback"
+
+        # ── Compute technical indicators (C++ or Python) ──────
+        close_list = df["Close"].tolist()
+        high_list = df["High"].tolist()
+        low_list = df["Low"].tolist()
+
+        if _USING_CPP:
+            tech_summary = fast_technical.full_analysis(close_list, high_list, low_list)
+            engine_label = "C++ Native"
+        else:
+            from equimind.quantitative.technical import TechnicalEngine
+            # Build DataFrame in expected format
+            analysis_df = pd.DataFrame({
+                "close": close_list,
+                "high": high_list,
+                "low": low_list,
+                "open": df["Open"].tolist(),
+                "volume": df["Volume"].tolist(),
+            })
+            tech_summary = TechnicalEngine.analyze_dataframe(analysis_df)
+            engine_label = "Python"
 
         rsi = tech_summary["rsi_14"]
+        last_price = tech_summary["last_price"]
+        macd_data = tech_summary.get("macd", {})
+        bb_data = tech_summary.get("bollinger_bands", {})
+        sr_data = tech_summary.get("support_resistance", {})
+
+        # ── Determine sentiment from RSI ──────────────────────
         sentiment = SentimentPolarity.NEUTRAL
         if rsi > 70:
-            sentiment = SentimentPolarity.BEARISH  # Overbought
+            sentiment = SentimentPolarity.BEARISH   # Overbought
         elif rsi < 30:
-            sentiment = SentimentPolarity.BULLISH  # Oversold
+            sentiment = SentimentPolarity.BULLISH    # Oversold
         elif rsi >= 55:
             sentiment = SentimentPolarity.BULLISH
         elif rsi <= 45:
             sentiment = SentimentPolarity.BEARISH
 
+        # ── Fetch company info for enrichment ────────────────
+        company_info = YFinanceAdapter.get_company_info(ticker_upper)
+        company_name = company_info.get("name", ticker_upper)
+        sector = company_info.get("sector", "Unknown")
+        market_cap = company_info.get("market_cap", 0)
+        pe_ratio = company_info.get("pe_ratio")
+
+        # ── Build evidence content ───────────────────────────
         content_str = (
-            f"Market price for {ticker_upper} is ${tech_summary['last_price']:.2f}. "
-            f"RSI (14) = {rsi}. MACD line = {tech_summary['macd']['macd']} "
-            f"(Signal = {tech_summary['macd']['signal']}, Hist = {tech_summary['macd']['histogram']}). "
-            f"Bollinger Bands: Upper=${tech_summary['bollinger_bands']['upper']}, "
-            f"Middle=${tech_summary['bollinger_bands']['middle']}, Lower=${tech_summary['bollinger_bands']['lower']}. "
-            f"Support levels: {tech_summary['support_resistance']['support']}, "
-            f"Resistance levels: {tech_summary['support_resistance']['resistance']}."
+            f"Market data for {company_name} ({ticker_upper}) — Source: {data_source}, Engine: {engine_label}\n"
+            f"Last Price: ${last_price:.2f} | Sector: {sector}\n"
+            f"Market Cap: ${market_cap/1e9:.1f}B" + (f" | P/E: {pe_ratio:.1f}" if pe_ratio else "") + "\n"
+            f"RSI(14): {rsi:.1f} | "
+            f"MACD: {macd_data.get('macd', 0):.2f} (Signal: {macd_data.get('signal', 0):.2f}, "
+            f"Hist: {macd_data.get('histogram', 0):.2f})\n"
+            f"Bollinger Bands: Upper=${bb_data.get('upper', 0):.2f}, "
+            f"Mid=${bb_data.get('middle', 0):.2f}, Lower=${bb_data.get('lower', 0):.2f}\n"
+            f"SMA(20): ${tech_summary.get('sma_20', 0):.2f} | "
+            f"SMA(50): ${tech_summary.get('sma_50', 0):.2f} | "
+            f"SMA(200): ${tech_summary.get('sma_200', 0):.2f}\n"
+            f"ATR(14): {tech_summary.get('atr_14', 0):.2f} | "
+            f"Annualized Vol: {tech_summary.get('annualized_volatility', 0):.1f}%\n"
+            f"Support: {sr_data.get('support', [])} | Resistance: {sr_data.get('resistance', [])}\n"
+            f"Data: {len(df)} trading days analyzed"
         )
+
+        # Add volume analysis
+        if "Volume" in df.columns:
+            avg_vol = df["Volume"].mean()
+            recent_vol = df["Volume"].tail(5).mean()
+            vol_ratio = recent_vol / avg_vol if avg_vol > 0 else 1.0
+            content_str += f"\nVolume: Avg={avg_vol/1e6:.1f}M, Recent={recent_vol/1e6:.1f}M (Ratio: {vol_ratio:.2f}x)"
+
+        # ── Build enriched metadata ──────────────────────────
+        metadata = {
+            **tech_summary,
+            "data_source": data_source,
+            "engine": engine_label,
+            "company_name": company_name,
+            "sector": sector,
+            "market_cap": market_cap,
+            "pe_ratio": pe_ratio,
+            "trading_days_analyzed": len(df),
+            "data_start_date": str(df.index[0].date()) if not df.empty else None,
+            "data_end_date": str(df.index[-1].date()) if not df.empty else None,
+        }
 
         node = EvidenceNode(
             source_type=EvidenceSource.MARKET_PRICES,
-            title=f"{ticker_upper} Market Data & Technical Indicators Analysis",
+            title=f"{company_name} ({ticker_upper}) — Real Market Data & Technical Analysis",
             content=content_str,
             publication_timestamp=ref_date,
-            author="EquiMind Quantitative Market Engine",
+            author=f"EquiMind Market Engine ({engine_label})",
             author_credibility=AuthorCredibility.VERIFIED_OFFICIAL,
             confidence_score=0.95,
             sentiment=sentiment,
             affected_ticker=ticker_upper,
-            tags=["technical_analysis", "prices", "rsi", "macd", "bollinger_bands"],
-            metadata=tech_summary,
+            tags=["technical_analysis", "prices", "rsi", "macd", "bollinger_bands",
+                  "real_data" if "Real" in data_source else "synthetic"],
+            metadata=metadata,
         )
 
         return [node]
-
-    def _generate_market_data(self, ticker: str, ref_date: datetime) -> pd.DataFrame:
-        """Generates realistic market price series relative to reference cutoff date."""
-        np.random.seed(abs(hash(ticker)) % 10000)
-        dates = pd.date_range(end=ref_date, periods=100, freq="D")
-        base_price = 150.0 if ticker in ("NVDA", "AAPL") else 100.0
-        returns = np.random.normal(loc=0.001, scale=0.015, size=100)
-        prices = base_price * np.exp(np.cumsum(returns))
-
-        return pd.DataFrame({
-            "date": dates,
-            "open": prices * 0.99,
-            "high": prices * 1.02,
-            "low": prices * 0.98,
-            "close": prices,
-            "volume": np.random.randint(1000000, 5000000, size=100),
-        })
