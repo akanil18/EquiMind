@@ -53,7 +53,15 @@ class MarketDataTeam(ResearchTeam):
         
         # Filter by as_of_date if provided (Time Machine support)
         if as_of_date and not df.empty:
-            df = df[df.index <= pd.Timestamp(as_of_date)]
+            try:
+                target_ts = pd.Timestamp(as_of_date)
+                if df.index.tz is not None and target_ts.tzinfo is None:
+                    target_ts = target_ts.tz_localize("UTC")
+                elif df.index.tz is None and target_ts.tzinfo is not None:
+                    target_ts = target_ts.tz_convert(None)
+                df = df[df.index <= target_ts]
+            except Exception as ex:
+                logger.debug(f"Timestamp filter warning: {ex}")
         
         if df.empty:
             logger.warning(f"No price data for {ticker_upper}")

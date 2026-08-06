@@ -171,11 +171,4 @@ if HAS_FASTAPI:
 
     web_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "web")
     if os.path.exists(web_dir):
-        app.mount("/app", StaticFiles(directory=web_dir, html=True), name="static_web")
-
-        @app.get("/")
-        def read_root():
-            index_path = os.path.join(web_dir, "index.html")
-            if os.path.exists(index_path):
-                return FileResponse(index_path)
-            return {"service": "EquiMind API", "web_app": "/app/index.html"}
+        app.mount("/", StaticFiles(directory=web_dir, html=True), name="static_web")

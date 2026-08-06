@@ -232,6 +232,9 @@ class ParticleCanvas {
   }
 }
 
+// Instantiate ToastManager globally immediately
+window.toast = new ToastManager();
+
 // ── Init on DOM ready ──
 document.addEventListener('DOMContentLoaded', () => {
   window.nav = new NavManager();
