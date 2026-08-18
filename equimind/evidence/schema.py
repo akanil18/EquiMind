@@ -72,3 +72,10 @@ class EvidenceNode(BaseModel):
     vector_embedding: Optional[List[float]] = None
     supporting_references: List[str] = Field(default_factory=list)
     metadata: Dict[str, Any] = Field(default_factory=dict)
+    # Agentic RAG: set by HNSWRetriever during semantic retrieval
+    rag_retrieval_score: Optional[float] = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+        description="Normalized HNSW cosine similarity score assigned during Agentic RAG retrieval.",
+    )

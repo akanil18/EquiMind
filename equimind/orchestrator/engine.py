@@ -18,6 +18,7 @@ from equimind.committee.judge_agent import JudgeAgent
 from equimind.committee.schema import InvestmentRecommendation
 from equimind.memory.hierarchical_store import HierarchicalMemoryStore
 from equimind.memory.delta_engine import DeltaResearchEngine
+from equimind.rag.orchestrator import AgenticRAGOrchestrator
 
 logger = logging.getLogger(__name__)
 
@@ -78,14 +79,44 @@ class EquiMindEngine:
             # Apply temporal guard filtering
             filtered_nodes = guard.filter_evidence(raw_evidence_nodes)
 
-        # 5. Build Evidence Graph
+        # 5. Agentic RAG Orchestration with HNSW Vector Index
+        #    Iteratively retrieves and curates the most relevant evidence via
+        #    HNSW semantic search + RAGCriticAgent sufficiency evaluation.
+        #    The debate (Bull/Bear/Judge) operates on RAG-curated evidence.
+        rag_orchestrator = AgenticRAGOrchestrator(
+            provider=provider,
+            max_iterations=3,
+            top_k=min(25, max(len(filtered_nodes), 1)),
+        )
+        rag_result = rag_orchestrator.orchestrate(
+            query=query,
+            ticker=ticker_upper,
+            candidate_nodes=filtered_nodes,
+            as_of_date=as_of_dt,
+        )
+
+        # Rebuild node map for fast lookup
+        node_map = {n.id: n for n in filtered_nodes}
+        # Use RAG-curated, HNSW-ranked nodes for all downstream steps
+        rag_curated_nodes = rag_orchestrator.curate_nodes_from_result(rag_result, node_map)
+        # Fall back to filtered_nodes if RAG returned nothing (e.g. empty corpus)
+        nodes_for_pipeline = rag_curated_nodes if rag_curated_nodes else filtered_nodes
+
+        logger.info(
+            f"AgenticRAG: {rag_result.total_iterations} iterations | "
+            f"converged={rag_result.converged} | "
+            f"curated={len(nodes_for_pipeline)} nodes | "
+            f"coverage={rag_result.final_coverage_score:.3f}"
+        )
+
+        # 5b. Build Evidence Graph (on RAG-curated nodes)
         graph = EvidenceGraph()
-        for node in filtered_nodes:
+        for node in nodes_for_pipeline:
             graph.add_node(node)
 
         # 6. Context Optimization & Non-LLM Compression Engine
         compressed_nodes = ContextCompressor.compress(
-            nodes=filtered_nodes,
+            nodes=nodes_for_pipeline,
             query_context=query,
             max_token_budget=settings.max_context_tokens // 8,
             as_of_date=as_of_dt,
@@ -140,4 +171,26 @@ class EquiMindEngine:
             "evidence_graph_nodes": len(graph.nodes),
             "compressed_evidence_count": len(compressed_nodes),
             "recommendation": recommendation.model_dump(),
+            "agentic_rag": {
+                "iterations": rag_result.total_iterations,
+                "converged": rag_result.converged,
+                "final_coverage_score": rag_result.final_coverage_score,
+                "curated_nodes": len(rag_result.curated_node_ids),
+                "discarded_nodes": len(rag_result.discarded_node_ids),
+                "iteration_logs": [
+                    {
+                        "iteration": log.iteration,
+                        "query": log.query_used,
+                        "retrieved": log.nodes_retrieved,
+                        "after_filter": log.nodes_after_filter,
+                        "coverage_score": log.coverage_score,
+                        "sufficient": log.is_sufficient,
+                        "missing_aspects": log.missing_aspects,
+                        "search_ms": log.hnsw_search_time_ms,
+                        "critic_ms": log.critic_time_ms,
+                    }
+                    for log in rag_result.iteration_logs
+                ],
+                "hnsw_stats": rag_result.metadata.get("hnsw_stats", {}),
+            },
         }
