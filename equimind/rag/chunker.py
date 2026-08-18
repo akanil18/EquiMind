@@ -51,6 +51,7 @@ class FinancialChunk(BaseModel):
             affected_ticker=self.ticker,
             publication_timestamp=self.publication_timestamp,
             metadata={
+  
                 **self.metadata,
                 "parent_id": self.parent_id,
                 "is_parent": self.is_parent,
