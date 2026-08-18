@@ -5,7 +5,6 @@ Exposes:
   - Vector Store: VectorStore, HNSWVectorStore, MetadataFilter
   - Hybrid Retrieval: HybridRetriever, BM25Index
   - Reranker: CrossEncoderReranker
-  - Chunker: FinancialChunker, FinancialChunk
   - Embedder: SentenceTransformerEmbedder, TFIDFEmbedder, EmbeddingRouter
   - Evaluation: RAGEvaluator, RAGMetricsResult, GoldenQueryEntry
   - Agentic Orchestration: AgenticRAGOrchestrator, RAGCriticAgent, RAGQueryRewriter
@@ -18,7 +17,6 @@ from equimind.rag.embedder import SentenceTransformerEmbedder, TFIDFEmbedder, Em
 from equimind.rag.vector_store import VectorStore, HNSWVectorStore, MetadataFilter
 from equimind.rag.hybrid_retriever import HybridRetriever, BM25Index
 from equimind.rag.reranker import CrossEncoderReranker
-from equimind.rag.chunker import FinancialChunker, FinancialChunk
 from equimind.rag.evaluator import RAGEvaluator, RAGMetricsResult, GoldenQueryEntry
 from equimind.rag.retriever import HNSWRetriever
 from equimind.rag.critic_agent import RAGCriticAgent
@@ -32,8 +30,6 @@ __all__ = [
     "HybridRetriever",
     "BM25Index",
     "CrossEncoderReranker",
-    "FinancialChunker",
-    "FinancialChunk",
     "SentenceTransformerEmbedder",
     "TFIDFEmbedder",
     "EmbeddingRouter",
