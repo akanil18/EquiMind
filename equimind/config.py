@@ -55,6 +55,10 @@ class EquiMindConfig(BaseModel):
     request_timeout_seconds: int = Field(default_factory=lambda: int(os.getenv("EQUIMIND_REQUEST_TIMEOUT", "60")))
     max_retries: int = Field(default_factory=lambda: int(os.getenv("EQUIMIND_MAX_RETRIES", "3")))
 
+    # Vector Database — Pinecone
+    pinecone_api_key: Optional[str] = Field(default_factory=lambda: os.getenv("PINECONE_API_KEY"))
+    pinecone_index_name: str = Field(default_factory=lambda: os.getenv("PINECONE_INDEX_NAME", "equimind"))
+
 
 # Singleton instance
 settings = EquiMindConfig()

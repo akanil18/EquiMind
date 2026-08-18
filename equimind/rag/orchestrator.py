@@ -32,7 +32,12 @@ DEFAULT_MIN_SIMILARITY = 0.10
 
 
 class AgenticRAGOrchestrator:
-    """Production Agentic RAG Orchestrator with Hybrid Search, Reranking, and Self-RAG."""
+    """Production Agentic RAG Orchestrator with Hybrid Search, Reranking, and Self-RAG.
+    
+    Auto-selects backend:
+      - PineconeHybridRetriever if PINECONE_API_KEY is set (persistent, cloud)
+      - HybridRetriever (in-memory HNSW + BM25) as fallback (no persistence)
+    """
 
     def __init__(
         self,
@@ -43,6 +48,8 @@ class AgenticRAGOrchestrator:
         hnsw_M: int = 16,
         hnsw_ef_construction: int = 200,
         hnsw_ef_search: int = 50,
+        pinecone_api_key: Optional[str] = None,
+        pinecone_index_name: str = "equimind",
     ) -> None:
         self.provider = provider
         self.max_iterations = max_iterations
@@ -51,6 +58,21 @@ class AgenticRAGOrchestrator:
         self.hnsw_M = hnsw_M
         self.hnsw_ef_construction = hnsw_ef_construction
         self.hnsw_ef_search = hnsw_ef_search
+
+        # Determine vector store backend
+        import os
+        _pinecone_key = pinecone_api_key or os.environ.get("PINECONE_API_KEY")
+        if _pinecone_key:
+            from equimind.rag.pinecone_hybrid_retriever import PineconeHybridRetriever
+            self._retriever_backend = "pinecone"
+            self._pinecone_key = _pinecone_key
+            self._pinecone_index = pinecone_index_name
+            logger.info("AgenticRAGOrchestrator: Using Pinecone persistent vector store")
+        else:
+            self._retriever_backend = "memory"
+            self._pinecone_key = None
+            self._pinecone_index = pinecone_index_name
+            logger.info("AgenticRAGOrchestrator: Using in-memory HNSW (no PINECONE_API_KEY found)")
 
     def orchestrate(
         self,
@@ -83,15 +105,25 @@ class AgenticRAGOrchestrator:
 
         # ── 1. Index full candidate corpus into VectorStore & BM25 ──
         t0 = time.time()
-        vector_store = HNSWVectorStore(
-            M=self.hnsw_M,
-            ef_construction=self.hnsw_ef_construction,
-            ef_search=self.hnsw_ef_search,
-        )
-        hybrid_retriever = HybridRetriever(
-            vector_store=vector_store,
-            provider=self.provider,
-        )
+
+        if self._retriever_backend == "pinecone":
+            from equimind.rag.pinecone_hybrid_retriever import PineconeHybridRetriever
+            hybrid_retriever = PineconeHybridRetriever(
+                pinecone_api_key=self._pinecone_key,
+                index_name=self._pinecone_index,
+                provider=self.provider,
+            )
+        else:
+            vector_store = HNSWVectorStore(
+                M=self.hnsw_M,
+                ef_construction=self.hnsw_ef_construction,
+                ef_search=self.hnsw_ef_search,
+            )
+            hybrid_retriever = HybridRetriever(
+                vector_store=vector_store,
+                provider=self.provider,
+            )
+
         hybrid_retriever.index_nodes(candidate_nodes)
         build_ms = (time.time() - t0) * 1000.0
 
@@ -110,11 +142,20 @@ class AgenticRAGOrchestrator:
         for iteration in range(1, self.max_iterations + 1):
             # 2a. Hybrid Retrieval (Dense + BM25 + RRF)
             t_search = time.time()
-            hybrid_results = hybrid_retriever.retrieve(
-                current_query,
-                top_k=self.top_k,
-                filters=filter_spec if len(candidate_nodes) > 10 else None,
-            )
+
+            if self._retriever_backend == "pinecone":
+                hybrid_results = hybrid_retriever.retrieve(
+                    current_query,
+                    top_k=self.top_k,
+                    ticker=ticker_upper,
+                )
+            else:
+                hybrid_results = hybrid_retriever.retrieve(
+                    current_query,
+                    top_k=self.top_k,
+                    filters=filter_spec if len(candidate_nodes) > 10 else None,
+                )
+
             search_ms = (time.time() - t_search) * 1000.0
 
             # 2b. Cross-Encoder Reranking

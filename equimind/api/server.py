@@ -57,9 +57,10 @@ if HAS_FASTAPI:
     def health_check():
         return {
             "status": "ok",
-            "service": "EquiMind Orchestration Engine",
-            "version": "0.2.0",
-            "cpp_native_module": True,
+            "service": "EquiMind Agentic RAG Engine",
+            "version": "0.3.0",
+            "agentic_rag": True,
+            "hybrid_search": "HNSW + BM25 + RRF",
             "real_data_enabled": True,
         }
 
