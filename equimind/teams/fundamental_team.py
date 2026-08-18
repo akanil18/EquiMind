@@ -8,7 +8,6 @@ from equimind.evidence.schema import (
     AuthorCredibility,
     SentimentPolarity,
 )
-from equimind.quantitative.fundamental import FundamentalEngine
 from equimind.teams.base_team import ResearchTeam
 from equimind.providers.base import LLMProvider
 from equimind.adapters import YFinanceAdapter
@@ -18,12 +17,11 @@ logger = logging.getLogger(__name__)
 
 
 class FundamentalTeam(ResearchTeam):
-    """Specialized team collecting financial statements, balance sheets, SEC 10-K/10-Q metrics, valuation ratios, F-score, and Z-score.
+    """Specialized team collecting financial statements, balance sheets, SEC 10-K/10-Q metrics, valuation ratios, and financial health.
     
     Data Sources:
       - yfinance (company info, trailing P/E, EPS, market cap, cash flow)
       - SEC EDGAR (XBRL financial statements)
-      - Deterministic Fundamental Engine (Piotroski F-score, Altman Z-score, ratios)
     """
 
     @property
@@ -49,12 +47,11 @@ class FundamentalTeam(ResearchTeam):
         mkt_cap = info.get("market_cap") or 100_000_000_000
         price = info.get("price") or 100.0
         eps = info.get("eps") or 3.5
-        pe_ratio = info.get("pe_ratio")
+        pe_ratio = info.get("pe_ratio") or round(price / eps, 2)
 
         # SEC data extraction
         inc = sec_summary.get("income_statement", {})
         bal = sec_summary.get("balance_sheet", {})
-        ratios = sec_summary.get("computed_ratios", {})
 
         rev_entries = inc.get("revenue", [])
         revenue = rev_entries[0]["value"] if rev_entries and rev_entries[0].get("value") else 50_000_000_000
@@ -81,70 +78,27 @@ class FundamentalTeam(ResearchTeam):
         book_val = shareholder_equity / (mkt_cap / price) if price > 0 and mkt_cap > 0 else 20.0
         fcf = net_income * 1.1
 
-        # Calculate valuation ratios
-        val_ratios = FundamentalEngine.calculate_valuation_ratios(
-            market_cap=mkt_cap,
-            price=price,
-            eps=eps,
-            book_value_per_share=book_val,
-            free_cash_flow=fcf,
-            earnings_growth_rate=15.0,
-        )
-        if pe_ratio:
-            val_ratios["pe_ratio"] = round(pe_ratio, 2)
+        # Ratios
+        pb_ratio = round(price / book_val, 2) if book_val > 0 else 3.0
+        peg_ratio = round(pe_ratio / 15.0, 2) if pe_ratio else 1.5
+        fcf_yield = round((fcf / mkt_cap) * 100.0, 2) if mkt_cap > 0 else 5.0
 
-        prof_metrics = FundamentalEngine.calculate_profitability_metrics(
-            net_income=net_income,
-            revenue=revenue,
-            total_assets=total_assets,
-            shareholder_equity=shareholder_equity,
-            operating_income=operating_income,
-        )
+        roe_pct = round((net_income / shareholder_equity) * 100.0, 2) if shareholder_equity > 0 else 15.0
+        roa_pct = round((net_income / total_assets) * 100.0, 2) if total_assets > 0 else 10.0
+        net_margin_pct = round((net_income / revenue) * 100.0, 2) if revenue > 0 else 20.0
+        op_margin_pct = round((operating_income / revenue) * 100.0, 2) if revenue > 0 else 24.0
 
-        health_metrics = FundamentalEngine.calculate_financial_health(
-            current_assets=curr_assets,
-            current_liabilities=curr_liab,
-            total_debt=debt,
-            shareholder_equity=shareholder_equity,
-        )
-
-        asset_turnover = round(revenue / total_assets, 2) if total_assets > 0 else 0.7
-
-        f_score = FundamentalEngine.calculate_piotroski_f_score({
-            "net_income": net_income / 1e6,
-            "roa": prof_metrics["roa_pct"] / 100.0,
-            "operating_cash_flow": fcf / 1e6,
-            "long_term_debt_current": debt / 1e6,
-            "long_term_debt_prior": (debt * 1.05) / 1e6,
-            "current_ratio_current": health_metrics["current_ratio"],
-            "current_ratio_prior": health_metrics["current_ratio"] * 0.95,
-            "shares_outstanding_current": (mkt_cap / price) / 1e6,
-            "shares_outstanding_prior": (mkt_cap / price) / 1e6,
-            "gross_margin_current": prof_metrics["operating_margin_pct"] / 100.0,
-            "gross_margin_prior": 0.48,
-            "asset_turnover_current": asset_turnover,
-            "asset_turnover_prior": asset_turnover * 0.95,
-        })
-
-        z_score = FundamentalEngine.calculate_altman_z_score(
-            working_capital=(curr_assets - curr_liab) / 1e6,
-            retained_earnings=(shareholder_equity * 0.6) / 1e6,
-            ebit=operating_income / 1e6,
-            market_cap=mkt_cap / 1e6,
-            revenue=revenue / 1e6,
-            total_assets=total_assets / 1e6,
-            total_liabilities=total_liabilities / 1e6,
-        )
+        current_ratio = round(curr_assets / curr_liab, 2) if curr_liab > 0 else 1.5
+        debt_to_equity = round(debt / shareholder_equity, 2) if shareholder_equity > 0 else 0.5
 
         source_label = "SEC EDGAR & yfinance (Real)" if sec_summary.get("source") == "SEC EDGAR XBRL" else "yfinance / Fallback"
 
         content_str = (
             f"Fundamental Analysis for {info.get('name', ticker_upper)} ({ticker_upper}) — Source: {source_label}\n"
-            f"Valuation: PE = {val_ratios['pe_ratio']}, PB = {val_ratios['pb_ratio']}, PEG = {val_ratios['peg_ratio']}, FCF Yield = {val_ratios['fcf_yield_pct']}%\n"
-            f"Profitability: ROE = {prof_metrics['roe_pct']}%, ROA = {prof_metrics['roa_pct']}%, Net Margin = {prof_metrics['net_margin_pct']}%\n"
-            f"Financial Health: Current Ratio = {health_metrics['current_ratio']}, Debt-to-Equity = {health_metrics['debt_to_equity']}\n"
-            f"Piotroski F-Score: {f_score['piotroski_f_score']}/9 ({f_score['rating']})\n"
-            f"Altman Z-Score: {z_score['z_score']} ({z_score['zone']})"
+            f"Valuation: PE = {pe_ratio}, PB = {pb_ratio}, PEG = {peg_ratio}, FCF Yield = {fcf_yield}%\n"
+            f"Profitability: ROE = {roe_pct}%, ROA = {roa_pct}%, Net Margin = {net_margin_pct}%, Operating Margin = {op_margin_pct}%\n"
+            f"Financial Health: Current Ratio = {current_ratio}, Debt-to-Equity = {debt_to_equity}\n"
+            f"Revenue: ${revenue/1e9:.1f}B | Net Income: ${net_income/1e9:.1f}B | Total Assets: ${total_assets/1e9:.1f}B"
         )
 
         node = EvidenceNode(
@@ -155,15 +109,13 @@ class FundamentalTeam(ResearchTeam):
             author=f"EquiMind Fundamental Analysis Engine ({source_label})",
             author_credibility=AuthorCredibility.VERIFIED_OFFICIAL,
             confidence_score=0.95,
-            sentiment=SentimentPolarity.VERY_BULLISH if f_score['piotroski_f_score'] >= 7 else SentimentPolarity.NEUTRAL,
+            sentiment=SentimentPolarity.VERY_BULLISH if roe_pct >= 15.0 and debt_to_equity <= 1.0 else SentimentPolarity.NEUTRAL,
             affected_ticker=ticker_upper,
-            tags=["valuation", "pe_ratio", "roe", "piotroski_f_score", "altman_z_score", "real_data"],
+            tags=["valuation", "pe_ratio", "roe", "fundamentals", "real_data"],
             metadata={
-                "valuation": val_ratios,
-                "profitability": prof_metrics,
-                "health": health_metrics,
-                "piotroski": f_score,
-                "altman_z": z_score,
+                "valuation": {"pe_ratio": pe_ratio, "pb_ratio": pb_ratio, "peg_ratio": peg_ratio, "fcf_yield_pct": fcf_yield},
+                "profitability": {"roe_pct": roe_pct, "roa_pct": roa_pct, "net_margin_pct": net_margin_pct, "operating_margin_pct": op_margin_pct},
+                "health": {"current_ratio": current_ratio, "debt_to_equity": debt_to_equity},
                 "source": source_label,
             },
         )

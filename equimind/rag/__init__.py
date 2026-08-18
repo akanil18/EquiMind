@@ -1,33 +1,51 @@
 """
-equimind.rag — Agentic RAG Orchestration with HNSW Vector Search
+equimind.rag — Production Agentic RAG Orchestration System
 
-This module implements intelligent, iterative Retrieval-Augmented Generation
-using Hierarchical Navigable Small World (HNSW) graphs as the vector index.
-
-The agentic loop:
-  1. Embed query → HNSW semantic search → retrieve top-k EvidenceNodes
-  2. RAGCriticAgent evaluates evidence sufficiency (source diversity, sentiment
-     coverage, age, query-relevance)
-  3. If insufficient → RAGQueryRewriter generates a refined sub-query → go to 1
-  4. Repeat up to max_iterations, then hand curated evidence to Bull/Bear/Judge debate
+Exposes:
+  - Vector Store: VectorStore, HNSWVectorStore, MetadataFilter
+  - Hybrid Retrieval: HybridRetriever, BM25Index
+  - Reranker: CrossEncoderReranker
+  - Chunker: FinancialChunker, FinancialChunk
+  - Embedder: SentenceTransformerEmbedder, TFIDFEmbedder, EmbeddingRouter
+  - Evaluation: RAGEvaluator, RAGMetricsResult, GoldenQueryEntry
+  - Agentic Orchestration: AgenticRAGOrchestrator, RAGCriticAgent, RAGQueryRewriter
+  - Schemas: RAGCriticResult, RAGIterationLog, AgenticRAGResult
 """
 
 from equimind.rag.schema import RAGCriticResult, RAGIterationLog, AgenticRAGResult
 from equimind.rag.hnsw_index import HNSWIndex
-from equimind.rag.embedder import EmbeddingRouter
+from equimind.rag.embedder import SentenceTransformerEmbedder, TFIDFEmbedder, EmbeddingRouter
+from equimind.rag.vector_store import VectorStore, HNSWVectorStore, MetadataFilter
+from equimind.rag.hybrid_retriever import HybridRetriever, BM25Index
+from equimind.rag.reranker import CrossEncoderReranker
+from equimind.rag.chunker import FinancialChunker, FinancialChunk
+from equimind.rag.evaluator import RAGEvaluator, RAGMetricsResult, GoldenQueryEntry
 from equimind.rag.retriever import HNSWRetriever
 from equimind.rag.critic_agent import RAGCriticAgent
 from equimind.rag.query_rewriter import RAGQueryRewriter
 from equimind.rag.orchestrator import AgenticRAGOrchestrator
 
 __all__ = [
-    "RAGCriticResult",
-    "RAGIterationLog",
-    "AgenticRAGResult",
-    "HNSWIndex",
+    "VectorStore",
+    "HNSWVectorStore",
+    "MetadataFilter",
+    "HybridRetriever",
+    "BM25Index",
+    "CrossEncoderReranker",
+    "FinancialChunker",
+    "FinancialChunk",
+    "SentenceTransformerEmbedder",
+    "TFIDFEmbedder",
     "EmbeddingRouter",
+    "RAGEvaluator",
+    "RAGMetricsResult",
+    "GoldenQueryEntry",
+    "HNSWIndex",
     "HNSWRetriever",
     "RAGCriticAgent",
     "RAGQueryRewriter",
     "AgenticRAGOrchestrator",
+    "RAGCriticResult",
+    "RAGIterationLog",
+    "AgenticRAGResult",
 ]

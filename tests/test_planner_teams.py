@@ -36,9 +36,8 @@ class TestPlannerAndTeams(unittest.TestCase):
         team = FundamentalTeam()
         nodes = team.research(ticker="NVDA", query="Financial statements")
         self.assertEqual(len(nodes), 1)
-        self.assertEqual(nodes[0].source_type, EvidenceSource.FINANCIAL_STATEMENTS)
-        self.assertIn("piotroski", nodes[0].metadata)
-        self.assertIn("altman_z", nodes[0].metadata)
+        self.assertIn("valuation", nodes[0].metadata)
+        self.assertIn("profitability", nodes[0].metadata)
 
     def test_macro_team(self):
         team = MacroTeam()

@@ -17,20 +17,13 @@ from equimind.adapters import YFinanceAdapter
 
 logger = logging.getLogger(__name__)
 
-# Try C++ optimized engine first, fall back to Python
-try:
-    from equimind.native import fast_technical, is_native_available
-    _USING_CPP = is_native_available()
-except ImportError:
-    _USING_CPP = False
-
 
 class MarketDataTeam(ResearchTeam):
     """Specialized team collecting real price data, liquidity, moving averages, and technical indicators.
     
     Data Sources:
       - yfinance (real market data) with synthetic fallback
-      - C++ optimized technical indicator engine (with Python fallback)
+      - Pure Python/Pandas technical analysis engine
     """
 
     @property
@@ -69,32 +62,43 @@ class MarketDataTeam(ResearchTeam):
 
         data_source = "yfinance (Real)" if len(df) > 100 else "synthetic fallback"
 
-        # ── Compute technical indicators (C++ or Python) ──────
-        close_list = df["Close"].tolist()
-        high_list = df["High"].tolist()
-        low_list = df["Low"].tolist()
+        # ── Compute technical indicators ──────
+        close_series = pd.Series(df["Close"].astype(float).values).dropna()
+        last_price = float(close_series.iloc[-1]) if not close_series.empty and (close_series.iloc[-1] == close_series.iloc[-1]) else 100.0
 
-        if _USING_CPP:
-            tech_summary = fast_technical.full_analysis(close_list, high_list, low_list)
-            engine_label = "C++ Native"
-        else:
-            from equimind.quantitative.technical import TechnicalEngine
-            # Build DataFrame in expected format
-            analysis_df = pd.DataFrame({
-                "close": close_list,
-                "high": high_list,
-                "low": low_list,
-                "open": df["Open"].tolist(),
-                "volume": df["Volume"].tolist(),
-            })
-            tech_summary = TechnicalEngine.analyze_dataframe(analysis_df)
-            engine_label = "Python"
+        # RSI calculation
+        delta = close_series.diff()
+        gain = (delta.where(delta > 0, 0)).rolling(window=14, min_periods=1).mean()
+        loss = (-delta.where(delta < 0, 0)).rolling(window=14, min_periods=1).mean()
+        rs = gain / (loss.replace(0, 1e-9))
+        rsi_series = 100 - (100 / (1 + rs))
+        rsi = float(rsi_series.iloc[-1]) if not rsi_series.empty else 50.0
 
-        rsi = tech_summary["rsi_14"]
-        last_price = tech_summary["last_price"]
-        macd_data = tech_summary.get("macd", {})
-        bb_data = tech_summary.get("bollinger_bands", {})
-        sr_data = tech_summary.get("support_resistance", {})
+        # Moving Averages
+        sma_20 = float(close_series.rolling(20, min_periods=1).mean().iloc[-1])
+        sma_50 = float(close_series.rolling(50, min_periods=1).mean().iloc[-1])
+        sma_200 = float(close_series.rolling(200, min_periods=1).mean().iloc[-1])
+
+        # MACD (12, 26, 9)
+        exp1 = close_series.ewm(span=12, adjust=False).mean()
+        exp2 = close_series.ewm(span=26, adjust=False).mean()
+        macd_line = exp1 - exp2
+        signal_line = macd_line.ewm(span=9, adjust=False).mean()
+        hist = macd_line - signal_line
+        macd_val = float(macd_line.iloc[-1])
+        signal_val = float(signal_line.iloc[-1])
+        hist_val = float(hist.iloc[-1])
+
+        # Bollinger Bands (20, 2)
+        std_20 = float(close_series.rolling(20, min_periods=1).std().iloc[-1])
+        bb_upper = sma_20 + (2.0 * std_20)
+        bb_lower = sma_20 - (2.0 * std_20)
+
+        # Volatility
+        returns = close_series.pct_change().dropna()
+        ann_vol = float(returns.std() * np.sqrt(252) * 100.0) if len(returns) > 1 else 20.0
+
+        engine_label = "Python Engine"
 
         # ── Determine sentiment from RSI ──────────────────────
         sentiment = SentimentPolarity.NEUTRAL
@@ -120,29 +124,30 @@ class MarketDataTeam(ResearchTeam):
             f"Last Price: ${last_price:.2f} | Sector: {sector}\n"
             f"Market Cap: ${market_cap/1e9:.1f}B" + (f" | P/E: {pe_ratio:.1f}" if pe_ratio else "") + "\n"
             f"RSI(14): {rsi:.1f} | "
-            f"MACD: {macd_data.get('macd', 0):.2f} (Signal: {macd_data.get('signal', 0):.2f}, "
-            f"Hist: {macd_data.get('histogram', 0):.2f})\n"
-            f"Bollinger Bands: Upper=${bb_data.get('upper', 0):.2f}, "
-            f"Mid=${bb_data.get('middle', 0):.2f}, Lower=${bb_data.get('lower', 0):.2f}\n"
-            f"SMA(20): ${tech_summary.get('sma_20', 0):.2f} | "
-            f"SMA(50): ${tech_summary.get('sma_50', 0):.2f} | "
-            f"SMA(200): ${tech_summary.get('sma_200', 0):.2f}\n"
-            f"ATR(14): {tech_summary.get('atr_14', 0):.2f} | "
-            f"Annualized Vol: {tech_summary.get('annualized_volatility', 0):.1f}%\n"
-            f"Support: {sr_data.get('support', [])} | Resistance: {sr_data.get('resistance', [])}\n"
+            f"MACD: {macd_val:.2f} (Signal: {signal_val:.2f}, Hist: {hist_val:.2f})\n"
+            f"Bollinger Bands: Upper=${bb_upper:.2f}, Mid=${sma_20:.2f}, Lower=${bb_lower:.2f}\n"
+            f"SMA(20): ${sma_20:.2f} | SMA(50): ${sma_50:.2f} | SMA(200): ${sma_200:.2f}\n"
+            f"Annualized Volatility: {ann_vol:.1f}%\n"
             f"Data: {len(df)} trading days analyzed"
         )
 
         # Add volume analysis
         if "Volume" in df.columns:
-            avg_vol = df["Volume"].mean()
-            recent_vol = df["Volume"].tail(5).mean()
+            avg_vol = float(df["Volume"].mean())
+            recent_vol = float(df["Volume"].tail(5).mean())
             vol_ratio = recent_vol / avg_vol if avg_vol > 0 else 1.0
             content_str += f"\nVolume: Avg={avg_vol/1e6:.1f}M, Recent={recent_vol/1e6:.1f}M (Ratio: {vol_ratio:.2f}x)"
 
         # ── Build enriched metadata ──────────────────────────
         metadata = {
-            **tech_summary,
+            "last_price": last_price,
+            "rsi_14": rsi,
+            "sma_20": sma_20,
+            "sma_50": sma_50,
+            "sma_200": sma_200,
+            "macd": {"macd": macd_val, "signal": signal_val, "histogram": hist_val},
+            "bollinger_bands": {"upper": bb_upper, "middle": sma_20, "lower": bb_lower},
+            "annualized_volatility": ann_vol,
             "data_source": data_source,
             "engine": engine_label,
             "company_name": company_name,

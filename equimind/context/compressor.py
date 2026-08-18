@@ -16,10 +16,10 @@ CREDIBILITY_WEIGHTS: Dict[AuthorCredibility, float] = {
 
 
 class ContextCompressor:
-    """In-memory deterministic compression engine for evidence nodes.
+    """In-memory deterministic compression and reranking engine for evidence nodes.
     
     Performs exact deduplication, fuzzy clustering, time-decay scoring,
-    query relevance ranking, and token budget packing without requiring extra LLM calls.
+    MMR (Maximal Marginal Relevance) diversity selection, and token budget packing.
     """
 
     @classmethod
@@ -30,12 +30,14 @@ class ContextCompressor:
         max_token_budget: int = 4000,
         similarity_threshold: float = 0.7,
         as_of_date: Optional[datetime] = None,
+        use_mmr: bool = True,
+        mmr_lambda: float = 0.65,
     ) -> List[EvidenceNode]:
-        """Runs full deterministic compression pipeline."""
+        """Runs full deterministic compression and diversity pipeline."""
         if not nodes:
             return []
 
-        # 1. Temporal cutoff filtering (if running in backtesting mode)
+        # 1. Temporal cutoff filtering
         if as_of_date:
             nodes = [n for n in nodes if n.publication_timestamp <= as_of_date]
 
@@ -48,8 +50,14 @@ class ContextCompressor:
         # 4. Relevance ranking & time-decay scoring
         ranked = cls.score_and_rank(clustered, query_context, current_time=as_of_date)
 
-        # 5. Pack nodes into context token budget
-        packed = cls.pack_context_budget(ranked, max_token_budget=max_token_budget)
+        # 5. Maximal Marginal Relevance (MMR) for diversity
+        if use_mmr and len(ranked) > 2:
+            diverse_ranked = cls.maximal_marginal_relevance(ranked, query_context, lambda_param=mmr_lambda)
+        else:
+            diverse_ranked = ranked
+
+        # 6. Pack nodes into context token budget
+        packed = cls.pack_context_budget(diverse_ranked, max_token_budget=max_token_budget)
 
         return packed
 
@@ -72,7 +80,7 @@ class ContextCompressor:
     def fuzzy_cluster_deduplicate(
         cls, nodes: List[EvidenceNode], similarity_threshold: float = 0.7
     ) -> List[EvidenceNode]:
-        """Clusters semantically similar evidence (e.g. repeated news headlines) and retains the highest credibility node."""
+        """Clusters semantically similar evidence and retains the highest credibility node."""
         if len(nodes) <= 1:
             return nodes
 
@@ -97,7 +105,6 @@ class ContextCompressor:
             else:
                 clusters.append([node])
 
-        # Pick highest scoring node from each cluster
         retained: List[EvidenceNode] = []
         for cluster in clusters:
             best_node = max(
@@ -124,12 +131,10 @@ class ContextCompressor:
             cred_weight = CREDIBILITY_WEIGHTS.get(node.author_credibility, 1.0)
             conf_score = node.confidence_score
 
-            # Time decay calculation (half life ~ 14 days)
             time_diff = (ref_time - node.publication_timestamp).total_seconds()
             days_old = max(0.0, time_diff / 86400.0)
             time_decay = math.exp(-0.05 * days_old)
 
-            # Keyword relevance overlap
             node_tokens = set(re.findall(r"\w+", (node.title + " " + node.content).lower()))
             if query_tokens and node_tokens:
                 overlap = len(query_tokens.intersection(node_tokens))
@@ -137,23 +142,75 @@ class ContextCompressor:
             else:
                 relevance = 1.0
 
-            final_score = cred_weight * conf_score * time_decay * relevance
+            # Bonus from Agentic RAG retrieval score if present
+            rag_bonus = (getattr(node, "rag_retrieval_score", None) or 0.5)
+
+            final_score = cred_weight * conf_score * time_decay * relevance * (1.0 + 0.3 * rag_bonus)
             scored_nodes.append((final_score, node))
 
-        # Sort descending by score
         scored_nodes.sort(key=lambda x: x[0], reverse=True)
         return [node for _, node in scored_nodes]
+
+    @classmethod
+    def maximal_marginal_relevance(
+        cls,
+        ranked_nodes: List[EvidenceNode],
+        query_context: str,
+        lambda_param: float = 0.65,
+        top_k: int = 20,
+    ) -> List[EvidenceNode]:
+        """Applies MMR to balance query relevance with result diversity."""
+        if not ranked_nodes:
+            return []
+
+        selected: List[EvidenceNode] = [ranked_nodes[0]]
+        candidates = ranked_nodes[1:]
+        
+        node_token_sets = {
+            n.id: set(re.findall(r"\w+", (n.title + " " + n.content).lower()))
+            for n in ranked_nodes
+        }
+        query_tokens = set(re.findall(r"\w+", query_context.lower()))
+
+        while candidates and len(selected) < top_k:
+            best_score = -float("inf")
+            best_candidate = None
+
+            for cand in candidates:
+                cand_tokens = node_token_sets[cand.id]
+                
+                # Sim 1: Query relevance
+                rel = cls._jaccard_similarity(query_tokens, cand_tokens) if query_tokens else 0.5
+                
+                # Sim 2: Max similarity to already selected nodes
+                max_sim_selected = max(
+                    cls._jaccard_similarity(cand_tokens, node_token_sets[sel.id])
+                    for sel in selected
+                )
+
+                mmr_score = (lambda_param * rel) - ((1.0 - lambda_param) * max_sim_selected)
+
+                if mmr_score > best_score:
+                    best_score = mmr_score
+                    best_candidate = cand
+
+            if best_candidate:
+                selected.append(best_candidate)
+                candidates.remove(best_candidate)
+            else:
+                break
+
+        return selected
 
     @classmethod
     def pack_context_budget(
         cls, nodes: List[EvidenceNode], max_token_budget: int = 4000
     ) -> List[EvidenceNode]:
-        """Packs highest ranked nodes into token budget (approximating 1 token = 4 chars)."""
+        """Packs highest ranked nodes into token budget."""
         current_tokens = 0
         packed: List[EvidenceNode] = []
 
         for node in nodes:
-            # Estimate tokens for formatted node
             node_str = f"Source: {node.source_type.value} | Title: {node.title} | Content: {node.content}"
             est_tokens = len(node_str) // 4 + 10
 
@@ -161,13 +218,14 @@ class ContextCompressor:
                 packed.append(node)
                 current_tokens += est_tokens
             else:
-                # Stop if budget is reached
                 break
 
         return packed
 
     @staticmethod
     def _jaccard_similarity(set1: Set[str], set2: Set[str]) -> float:
+        if not set1 or not set2:
+            return 0.0
         intersection = len(set1.intersection(set2))
         union = len(set1.union(set2))
         return intersection / union if union > 0 else 0.0

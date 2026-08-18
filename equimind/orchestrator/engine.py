@@ -129,7 +129,8 @@ class EquiMindEngine:
                 quant_summary = n.metadata
                 break
 
-        if not quant_summary:
+        last_p = quant_summary.get("last_price") if quant_summary else None
+        if last_p is None or not isinstance(last_p, (int, float)) or (isinstance(last_p, float) and (last_p != last_p)):
             quant_summary = {"last_price": 100.0}
 
         risk_summary = {"annualized_volatility_pct": 22.5}
