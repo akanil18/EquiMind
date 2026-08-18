@@ -9,12 +9,10 @@ Setup:
   3. Set env var: PINECONE_API_KEY=your_key_here
   4. Optionally set: PINECONE_INDEX_NAME=equimind (default)
 
-Architecture mapping to interview talking points:
-  - Pinecone Serverless = HNSW index managed by Pinecone (pod-free, auto-scaled)
-  - upsert() → WAL → indexed segment (like Qdrant WAL)
-  - search() → HNSW nearest neighbor traversal with cosine similarity
-  - MetadataFilter → Pinecone Filter object with $eq/$gte/$in operators
-  - Pinecone namespace → multi-tenant ticker isolation
+Dimension Note:
+  Pinecone index is fixed at 384 dims (matches all-MiniLM-L6-v2 / sentence-transformers).
+  If sentence-transformers is not installed, TF-IDF embeddings are zero-padded to 384.
+  Install sentence-transformers for proper semantic search: pip install sentence-transformers
 """
 
 import logging
@@ -31,10 +29,26 @@ logger = logging.getLogger(__name__)
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 DEFAULT_INDEX_NAME = "equimind"
-DEFAULT_DIMENSION = 384          # all-MiniLM-L6-v2 / TF-IDF projected dim
+DEFAULT_DIMENSION = 384          # Fixed: all-MiniLM-L6-v2 or zero-padded TF-IDF
 DEFAULT_METRIC = "cosine"
 PINECONE_ENV_KEY = "PINECONE_API_KEY"
 UPSERT_BATCH_SIZE = 100          # Pinecone recommends ≤100 vectors per upsert
+
+
+def _pad_to_dim(arr: np.ndarray, target_dim: int) -> np.ndarray:
+    """Zero-pads or truncates a 1-D vector to exactly target_dim."""
+    current = arr.shape[-1]
+    if current == target_dim:
+        return arr
+    if current > target_dim:
+        return arr[..., :target_dim]
+    # Pad with zeros
+    pad_width = target_dim - current
+    if arr.ndim == 1:
+        return np.concatenate([arr, np.zeros(pad_width, dtype=arr.dtype)])
+    # 2D batch
+    pad = np.zeros((arr.shape[0], pad_width), dtype=arr.dtype)
+    return np.concatenate([arr, pad], axis=1)
 
 
 class PineconeMetadataFilter:
@@ -153,8 +167,10 @@ class PineconeVectorStore:
         # Fit embedder on corpus texts
         corpus = [f"{n.title}. {n.content[:600]}" for n in nodes]
         self.embedder.fit_corpus(corpus)
-        vectors = self.embedder.embed_batch(corpus)
-        self._dim = vectors.shape[1]
+        raw_vectors = self.embedder.embed_batch(corpus)
+
+        # Always pad/project to exactly DEFAULT_DIMENSION (384) for Pinecone
+        vectors = self._ensure_dim(raw_vectors)
 
         # Build Pinecone vector records
         records = []
@@ -206,7 +222,8 @@ class PineconeVectorStore:
             logger.warning("PineconeVectorStore.search(): Not connected to Pinecone.")
             return []
 
-        query_vec = self.embedder.embed(query).tolist()
+        query_vec_raw = self.embedder.embed(query)
+        query_vec = self._ensure_dim(query_vec_raw.reshape(1, -1)).flatten().tolist()
         pinecone_filter = PineconeMetadataFilter.build(
             ticker=ticker,
             source_types=source_types,
@@ -236,6 +253,10 @@ class PineconeVectorStore:
             return 0
         self._index.delete(ids=node_ids)
         return len(node_ids)
+
+    def _ensure_dim(self, arr: np.ndarray) -> np.ndarray:
+        """Ensures embedding array is exactly DEFAULT_DIMENSION wide."""
+        return _pad_to_dim(arr, DEFAULT_DIMENSION)
 
     def count(self) -> int:
         """Returns total number of vectors in the Pinecone index."""
