@@ -127,6 +127,109 @@ Query
 - [`equimind/rag/chunker.py`](equimind/rag/chunker.py) — `FinancialChunker` (parent-child)
 - [`equimind/rag/evaluator.py`](equimind/rag/evaluator.py) — RAG quality metrics (Recall, MRR, NDCG)
 
+---
+
+## 💻 End-to-End Orchestrator Pseudo-code
+
+```python
+from dataclasses import dataclass
+from typing import List, Dict
+import uuid
+
+# EvidenceNode with Parent-Child metadata support
+@dataclass
+class EvidenceNode:
+    id: str
+    content: str            # Child chunk text (200 tokens)
+    parent_content: str     # Parent chunk text (800 tokens)
+    ticker: str
+    source_type: str        # "yahoo_finance" or "sec_edgar"
+    timestamp: str
+
+class CompleteRAGOrchestrator:
+    def __init__(self, vector_db, bm25_index, embedder, reranker, live_sources, llm):
+        self.vector_db = vector_db      # HNSW Index (384-dim)
+        self.bm25 = bm25_index          # BM25 Index
+        self.embedder = embedder        # SentenceTransformer all-MiniLM-L6-v2
+        self.reranker = reranker        # Cross-Encoder Reranker
+        self.live_sources = live_sources# Yahoo Finance & SEC EDGAR
+        self.llm = llm                  # LLM Client
+
+    def hybrid_search_with_reranking(self, query: str, ticker: str) -> List[EvidenceNode]:
+        """Stage 1: Metadata Filter + HNSW + BM25 + RRF (Top 50) | Stage 2: Cross-Encoder Reranker (Top 10)."""
+        # --- STAGE 1: Fast Filtered Retrieval ---
+        filter_spec = {"ticker": ticker.upper()}  # METADATA FILTERING AT DB LEVEL
+        
+        query_vector = self.embedder.encode(query) # 384-dim dense embedding
+        dense_results = self.vector_db.search_hnsw(query_vector, top_k=50, filter=filter_spec)
+        sparse_results = self.bm25.search_bm25(query, top_k=50, filter=filter_spec)
+
+        # Reciprocal Rank Fusion (RRF)
+        rrf_scores = {}
+        for rank, node in enumerate(dense_results):
+            rrf_scores[node.id] = rrf_scores.get(node.id, 0) + (1.0 / (60 + rank + 1))
+        for rank, node in enumerate(sparse_results):
+            rrf_scores[node.id] = rrf_scores.get(node.id, 0) + (1.0 / (60 + rank + 1))
+
+        all_nodes = {n.id: n for n in dense_results + sparse_results}
+        top_50_candidates = sorted(all_nodes.values(), key=lambda n: rrf_scores[n.id], reverse=True)[:50]
+
+        # --- STAGE 2: Cross-Encoder Reranking ---
+        reranked_nodes = self.reranker.rescore(query, top_50_candidates)
+        return reranked_nodes[:10]  # Final Top 10 nodes
+
+    def ingest_live_data(self, ticker: str, topic: str):
+        """Fetch from 2 sources -> Parent-Child Chunking -> Embed 384-dim -> Ingest DB."""
+        # 1. Fetch on-demand from 2 sources ONLY: Yahoo Finance & SEC EDGAR
+        raw_docs = self.live_sources.fetch(ticker, topic, sources=["yahoo_finance", "sec_edgar"])
+
+        new_nodes = []
+        for doc in raw_docs:
+            # 2. Parent-Child Chunking
+            parent_text = doc["text"] # 800 tokens
+            children = [parent_text[i:i+200] for i in range(0, len(parent_text), 150)] # 200 tokens child
+            for child in children:
+                node = EvidenceNode(
+                    id=str(uuid.uuid4()),
+                    content=child,
+                    parent_content=parent_text,
+                    ticker=ticker,
+                    source_type=doc["source"],
+                    timestamp=doc["timestamp"]
+                )
+                # 3. Generate 384-dim Dense Vector Embedding
+                vector = self.embedder.encode(node.content)
+                
+                # 4. Upsert to Vector Store with Metadata & BM25
+                self.vector_db.upsert_hnsw(node.id, vector, node)
+                self.bm25.add_doc(node)
+                new_nodes.append(node)
+        return new_nodes
+
+    def run_pipeline(self, query: str, ticker: str) -> Dict:
+        """End-to-End Orchestrator Pipeline."""
+        current_query = query
+
+        # Self-RAG Retrieval Loop
+        for _ in range(3):
+            nodes = self.hybrid_search_with_reranking(current_query, ticker)
+            is_sufficient, missing_info = self.llm.critic_evaluate(ticker, nodes)
+
+            if is_sufficient:
+                break
+
+            # Fetch missing live data & ingest
+            self.ingest_live_data(ticker, missing_info)
+            current_query = self.llm.rewrite_query(query, missing_info)
+
+        # Adversarial Debate using Parent context for rich LLM understanding
+        bull_case = self.llm.run_bull_agent(ticker, nodes)
+        bear_case = self.llm.run_bear_agent(ticker, nodes)
+        final_report = self.llm.run_judge_agent(bull_case, bear_case, nodes)
+
+        return {"ticker": ticker, "final_report": final_report}
+```
+
 ### 3. Pinecone Serverless Vector Store
 
 EquiMind persists all `EvidenceNode` chunks to **Pinecone Serverless** — a production-grade managed HNSW vector index:
