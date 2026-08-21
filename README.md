@@ -27,6 +27,7 @@
 |---|---|---|
 | `EvidenceNode` | Document / Parent-Child Chunk | Pydantic model with ticker, child content (200 tokens), parent content (800 tokens), metadata |
 | `Two Core Sources` | Live Data Ingestion | Yahoo Finance API (prices/RSS) + SEC EDGAR API (10-K/10-Q filings) |
+| `MetadataFilter` | Filter Specs | Pre-search filtering by ticker, date range, and source types |
 | `HNSWVectorStore` / Pinecone | Dense Vector Index | HNSW cosine similarity, 384-dim SentenceTransformer embeddings (`all-MiniLM-L6-v2`) |
 | `BM25Index` | Sparse Keyword Index | In-memory Okapi BM25 index over tokenized text |
 | `Reciprocal Rank Fusion (RRF)` | Rank Fuser | Merges dense (HNSW) and sparse (BM25) search positions |
@@ -42,17 +43,18 @@
 ```mermaid
 graph TD
     User["User / CLI / REST API"] --> Engine["EquiMindEngine — Master Orchestrator"]
-    Engine --> HybridSearch["1. DB-First Hybrid Search\n(HNSW Vector Store + BM25 Keyword Search)"]
+    Engine --> MetaFilter["1. Metadata Filtering\n(Filter DB by ticker, date range, source types)"]
+    MetaFilter --> HybridSearch["2. DB-First Hybrid Search\n(HNSW Vector Store + BM25 Keyword Search)"]
 
     subgraph Search_Rerank ["2-Stage Hybrid Search & Reranking"]
         HybridSearch --> RRF["Reciprocal Rank Fusion (RRF)\nDense + Sparse Score Merge (Top 50)"]
         RRF --> Reranker["CrossEncoderReranker\nDeep Attention Re-scoring (Top 10)"]
     end
 
-    Reranker --> Critic{"2. Self-RAG Critic Agent\nIs DB Evidence Sufficient & Recent?"}
+    Reranker --> Critic{"3. Self-RAG Critic Agent\nIs DB Evidence Sufficient & Recent?"}
 
     %% PATH A: DATA MISSING -> ON-DEMAND LIVE FETCH
-    Critic -- "NO (Missing Context / Low Confidence)" --> TriggerFetch["3. On-Demand Live Fetch"]
+    Critic -- "NO (Missing Context / Low Confidence)" --> TriggerFetch["4. On-Demand Live Fetch"]
 
     subgraph Two_Core_Sources ["2 Core External Sources"]
         YFinance["Yahoo Finance API / RSS\n(Prices, RSI, MACD, Financial News)"]
@@ -60,23 +62,23 @@ graph TD
     end
 
     TriggerFetch --> Two_Core_Sources
-    Two_Core_Sources --> Chunker["4. Parent-Child Financial Chunker\nChild: 200 tokens (Search) | Parent: 800 tokens (LLM)"]
-    Chunker --> Embedder["5. 384-Dim Embedding Generation\n(SentenceTransformer: all-MiniLM-L6-v2)"]
-    Embedder --> VectorDB["6. Ingest into Persistent DB\n(Pinecone Cloud / Local HNSW + BM25)"]
-    VectorDB --> QueryRewriter["7. Query Rewriter\n(Expand multi-perspective sub-queries)"]
-    QueryRewriter --> HybridSearch
+    Two_Core_Sources --> Chunker["5. Parent-Child Financial Chunker\nChild: 200 tokens (Search) | Parent: 800 tokens (LLM)"]
+    Chunker --> Embedder["6. 384-Dim Embedding Generation\n(SentenceTransformer: all-MiniLM-L6-v2)"]
+    Embedder --> VectorDB["7. Ingest into Persistent DB\n(Pinecone Cloud / Local HNSW + BM25)"]
+    VectorDB --> QueryRewriter["8. Query Rewriter\n(Expand multi-perspective sub-queries)"]
+    QueryRewriter --> MetaFilter
 
     %% PATH B: SUFFICIENT DATA -> DEBATE
     Critic -- "YES (Sufficient Context)" --> Debate
 
-    subgraph Debate ["8. Adversarial Investment Debate"]
+    subgraph Debate ["9. Adversarial Investment Debate"]
         Bull["BullAgent\n(Optimistic Upside Thesis)"]
         Bear["BearAgent\n(Pessimistic Risk Thesis)"]
         Judge["JudgeAgent\n(Evaluates Debate & Evidence Citations)"]
         Bull & Bear --> Judge
     end
 
-    Judge --> Output["9. Structured Recommendation\n(Rating + Conviction Score + Thesis)"]
+    Judge --> Output["10. Structured Recommendation\n(Rating + Conviction Score + Thesis)"]
 ```
 
 ---
