@@ -72,6 +72,10 @@ class EvidenceNode(BaseModel):
     vector_embedding: Optional[List[float]] = None
     supporting_references: List[str] = Field(default_factory=list)
     metadata: Dict[str, Any] = Field(default_factory=dict)
+    # Parent-Child Chunking metadata support
+    parent_id: Optional[str] = Field(default=None, description="Parent document ID for Parent-Child chunking.")
+    parent_content: Optional[str] = Field(default=None, description="Parent document text context (e.g. 800 tokens) for LLM debate.")
+    chunk_index: int = Field(default=0, description="Chunk position index within parent document.")
     # Agentic RAG: set by HNSWRetriever during semantic retrieval
     rag_retrieval_score: Optional[float] = Field(
         default=None,

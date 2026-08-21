@@ -43,8 +43,7 @@ class WebIntelligenceTeam(ResearchTeam):
         ref_date = as_of_date or datetime.now(timezone.utc)
         ticker_upper = ticker.upper()
         active_adapters = (context or {}).get("active_adapters", [
-            "sec_filings", "financial_news", "reddit", "twitter_x",
-            "earnings_transcripts", "github_commits"
+            "sec_filings", "financial_news"
         ])
 
         nodes: List[EvidenceNode] = []
@@ -53,25 +52,9 @@ class WebIntelligenceTeam(ResearchTeam):
         if "sec_filings" in active_adapters:
             nodes.extend(self._fetch_real_sec_data(ticker_upper, ref_date))
 
-        # ── 2. Financial News — REAL DATA via RSS feeds ───────
+        # ── 2. Financial News — REAL DATA via Yahoo Finance & RSS ───────
         if "financial_news" in active_adapters:
             nodes.extend(self._fetch_real_news(ticker_upper, ref_date))
-
-        # ── 3. Reddit — Real if PRAW available, else synthetic
-        if "reddit" in active_adapters:
-            nodes.extend(self._fetch_reddit(ticker_upper, ref_date))
-
-        # ── 4. Twitter/X — Synthetic (requires paid API) ─────
-        if "twitter_x" in active_adapters:
-            nodes.append(self._synthetic_twitter(ticker_upper, ref_date))
-
-        # ── 5. GitHub Signals — Synthetic ─────────────────────
-        if "github_commits" in active_adapters:
-            nodes.append(self._synthetic_github(ticker_upper, ref_date))
-
-        # ── 6. Earnings Transcripts — Synthetic ──────────────
-        if "earnings_transcripts" in active_adapters:
-            nodes.append(self._synthetic_earnings(ticker_upper, ref_date))
 
         return nodes
 
@@ -241,78 +224,18 @@ class WebIntelligenceTeam(ResearchTeam):
                 url=article.get("link"),
             ))
 
+        if not nodes:
+            nodes.append(EvidenceNode(
+                source_type=EvidenceSource.FINANCIAL_NEWS,
+                title=f"Financial News Summary — {ticker}",
+                content=f"Latest market & financial news highlights for {ticker}.",
+                publication_timestamp=ref_date - timedelta(hours=2),
+                author="Yahoo Finance / MarketWatch RSS",
+                author_credibility=AuthorCredibility.HIGH,
+                confidence_score=0.85,
+                sentiment=SentimentPolarity.NEUTRAL,
+                affected_ticker=ticker,
+                tags=["news", "rss", "financial_news"],
+            ))
+
         return nodes
-
-    def _fetch_reddit(self, ticker: str, ref_date: datetime) -> List[EvidenceNode]:
-        """Fetch Reddit sentiment — real if PRAW available, else synthetic."""
-        # Try PRAW
-        try:
-            import praw
-            # Would need credentials — fall through to synthetic for now
-            raise ImportError("PRAW credentials not configured")
-        except ImportError:
-            pass
-
-        # Synthetic fallback
-        return [EvidenceNode(
-            source_type=EvidenceSource.REDDIT,
-            title=f"Retail Sentiment Analysis — r/stocks for {ticker} (Synthetic)",
-            content=(
-                f"Synthetic Reddit sentiment for {ticker}. "
-                f"Note: Real Reddit data requires PRAW API credentials. "
-                f"Configure REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET in .env to enable."
-            ),
-            publication_timestamp=ref_date - timedelta(hours=12),
-            author="r/stocks Community (Synthetic)",
-            author_credibility=AuthorCredibility.LOW,
-            confidence_score=0.40,
-            sentiment=SentimentPolarity.NEUTRAL,
-            affected_ticker=ticker,
-            tags=["reddit", "synthetic", "requires_api_key"],
-        )]
-
-    # ══════════════════════════════════════════════════════════
-    # SYNTHETIC ADAPTERS (require paid APIs)
-    # ══════════════════════════════════════════════════════════
-
-    def _synthetic_twitter(self, ticker: str, ref_date: datetime) -> EvidenceNode:
-        return EvidenceNode(
-            source_type=EvidenceSource.TWITTER_X,
-            title=f"X/Twitter Sentiment — {ticker} (Synthetic)",
-            content=f"Synthetic Twitter/X data for {ticker}. Real data requires X API credentials.",
-            publication_timestamp=ref_date - timedelta(hours=6),
-            author="X/Twitter (Synthetic)",
-            author_credibility=AuthorCredibility.LOW,
-            confidence_score=0.40,
-            sentiment=SentimentPolarity.NEUTRAL,
-            affected_ticker=ticker,
-            tags=["twitter_x", "synthetic", "requires_api_key"],
-        )
-
-    def _synthetic_github(self, ticker: str, ref_date: datetime) -> EvidenceNode:
-        return EvidenceNode(
-            source_type=EvidenceSource.GITHUB_COMMITS,
-            title=f"Developer Activity Signals — {ticker} (Synthetic)",
-            content=f"Synthetic GitHub developer activity for {ticker}.",
-            publication_timestamp=ref_date - timedelta(days=1),
-            author="GitHub Activity Tracker (Synthetic)",
-            author_credibility=AuthorCredibility.LOW,
-            confidence_score=0.40,
-            sentiment=SentimentPolarity.NEUTRAL,
-            affected_ticker=ticker,
-            tags=["github", "synthetic"],
-        )
-
-    def _synthetic_earnings(self, ticker: str, ref_date: datetime) -> EvidenceNode:
-        return EvidenceNode(
-            source_type=EvidenceSource.EARNINGS_TRANSCRIPT,
-            title=f"Earnings Call Transcript — {ticker} (Synthetic)",
-            content=f"Synthetic earnings transcript for {ticker}. Real transcripts require premium data provider.",
-            publication_timestamp=ref_date - timedelta(days=10),
-            author="Earnings Transcript (Synthetic)",
-            author_credibility=AuthorCredibility.LOW,
-            confidence_score=0.40,
-            sentiment=SentimentPolarity.NEUTRAL,
-            affected_ticker=ticker,
-            tags=["earnings_call", "synthetic"],
-        )

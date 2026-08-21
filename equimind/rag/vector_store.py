@@ -2,12 +2,12 @@
 VectorStore — Production Vector Database Abstraction & HNSW Vector Store.
 
 Architecture:
-  - VectorStore (Abstract Base Interface)
-  - HNSWVectorStore: In-process production-grade vector index supporting:
-      * HNSW approximate nearest neighbor search
-      * Structured metadata filtering (ticker, source_type, date range, tags)
-      * CRUD: upsert, search, delete, get, count
-      * Memory segment & compaction simulation for interview alignment
+- VectorStore (Abstract Base Interface)
+- HNSWVectorStore: In-process production-grade vector index supporting:
+    * HNSW approximate nearest neighbor search
+    * Structured metadata filtering (ticker, source_type, date range, tags)
+    * CRUD: upsert, search, delete, get, count
+    * Memory segment & compaction simulation for interview alignment
 """
 
 import abc
@@ -90,9 +90,9 @@ class HNSWVectorStore(VectorStore):
     """Production In-Memory Vector Store backed by HNSW index with metadata filtering.
     
     Features:
-      - Multi-layer HNSW graph for sub-millisecond approximate nearest neighbor search
-      - Filter-aware search (evaluates metadata filters during / after candidate retrieval)
-      - Segment and compaction lifecycle tracking
+    - Multi-layer HNSW graph for sub-millisecond approximate nearest neighbor search
+    - Filter-aware search (evaluates metadata filters during / after candidate retrieval)
+    - Segment and compaction lifecycle tracking
     """
 
     def __init__(

@@ -240,7 +240,7 @@ class AgenticRAGOrchestrator:
             discarded_node_ids=list(all_discard_ids),
             iteration_logs=iteration_logs,
             metadata={
-                "vector_store_stats": vector_store.stats(),
+                "vector_store_stats": vector_store.stats() if 'vector_store' in locals() and vector_store is not None else {},
                 "corpus_size": len(candidate_nodes),
                 "unique_retrieved": len(all_retrieved),
                 "build_time_ms": build_ms,

@@ -48,12 +48,11 @@ class TestPlannerAndTeams(unittest.TestCase):
 
     def test_web_intelligence_team(self):
         team = WebIntelligenceTeam()
-        nodes = team.research(ticker="NVDA", query="SEC filings and Reddit news")
-        self.assertTrue(len(nodes) >= 4)
+        nodes = team.research(ticker="NVDA", query="SEC filings and financial news")
+        self.assertTrue(len(nodes) >= 2)
         source_types = {n.source_type for n in nodes}
         self.assertIn(EvidenceSource.SEC_FILING, source_types)
         self.assertIn(EvidenceSource.FINANCIAL_NEWS, source_types)
-        self.assertIn(EvidenceSource.GITHUB_COMMITS, source_types)
 
     def test_temporal_guard_future_pruning(self):
         cutoff = datetime(2024, 1, 1, tzinfo=timezone.utc)

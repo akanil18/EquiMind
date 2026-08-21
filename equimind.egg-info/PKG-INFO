@@ -1,3 +1,18 @@
+Metadata-Version: 2.4
+Name: equimind
+Version: 0.1.0
+Summary: Autonomous AI Equity Research Firm & Financial Research Orchestration Framework
+Author: EquiMind Core Team
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: pydantic>=2.0.0
+Requires-Dist: requests>=2.31.0
+Requires-Dist: numpy>=1.24.0
+Requires-Dist: pandas>=2.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.4.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.21.0; extra == "dev"
+
 # EquiMind — Production Agentic RAG System for Financial Research
 
 <div align="center">
@@ -15,9 +30,9 @@
 
 ## 🧠 What is EquiMind?
 
-**EquiMind** is a production-grade **Dynamic Agentic RAG (Retrieval-Augmented Generation) system** for institutional equity research. It features DB-first vector lookups, on-demand live fetching from 2 primary sources (Yahoo Finance & SEC EDGAR), Parent-Child document chunking, HNSW dense + BM25 sparse search fused via Reciprocal Rank Fusion (RRF), Cross-Encoder re-ranking, Self-RAG critic feedback loops, and an adversarial investment debate (Bull vs. Bear).
+**EquiMind** is a production-grade **Agentic RAG (Retrieval-Augmented Generation) system** for institutional equity research. It mirrors how a real-world equity research firm operates — with specialized data collection agents, a persistent cloud vector store, adversarial investment debate, and self-correcting RAG retrieval loops.
 
-> **Core Design Principle:** DB-First Search $\rightarrow$ RRF Fusion $\rightarrow$ Cross-Encoder Reranking $\rightarrow$ Self-RAG Critic. External APIs (**Yahoo Finance & SEC EDGAR**) are hit on-demand only when context is missing, continuously enriching the persistent vector store.
+> **Core Design Principle:** LLMs are *synthesis engines*, not computation engines. All financial data is fetched deterministically from live APIs (yfinance, SEC EDGAR, News RSS). Evidence is stored as structured `EvidenceNode` chunks in Pinecone Serverless. Retrieval uses HNSW dense search + BM25 sparse search fused via Reciprocal Rank Fusion.
 
 ---
 
@@ -25,15 +40,17 @@
 
 | EquiMind Component | RAG Equivalent | Implementation |
 |---|---|---|
-| `EvidenceNode` | Document / Parent-Child Chunk | Pydantic model with ticker, child content (200 tokens), parent content (800 tokens), metadata |
-| `Two Core Sources` | Live Data Ingestion | Yahoo Finance API (prices/RSS) + SEC EDGAR API (10-K/10-Q filings) |
-| `HNSWVectorStore` / Pinecone | Dense Vector Index | HNSW cosine similarity, 384-dim SentenceTransformer embeddings (`all-MiniLM-L6-v2`) |
-| `BM25Index` | Sparse Keyword Index | In-memory Okapi BM25 index over tokenized text |
-| `Reciprocal Rank Fusion (RRF)` | Rank Fuser | Merges dense (HNSW) and sparse (BM25) search positions |
-| `CrossEncoderReranker` | 2nd Stage Reranker | Deep attention re-scoring of top 50 candidates $\rightarrow$ top 10 nodes |
-| `RAGCriticAgent` | Self-RAG Critic | LLM judges retrieval sufficiency across 5 dimensions |
-| `QueryRewriter` | Query Expansion | Multi-perspective financial query generation on missing context |
-| `BullAgent / BearAgent / JudgeAgent` | Adversarial Debate | Bull (optimistic) vs. Bear (pessimistic) debate judged by Judge agent |
+| `EvidenceNode` | Document / Chunk | Pydantic model with ticker, content, metadata |
+| `EvidenceGraph` | Graph RAG edges | Weighted relationship graph between nodes |
+| `HNSWVectorStore` / Pinecone | Vector Index | HNSW cosine similarity, 384-dim embeddings |
+| `HybridRetriever` | Dense + Sparse Retriever | BM25 + HNSW + RRF fusion |
+| `CrossEncoderReranker` | Reranker | Score-based re-ranking with latency budget |
+| `RAGCriticAgent` | Self-RAG Critic | LLM judges retrieval sufficiency |
+| `QueryRewriter` | Query Expansion | Multi-perspective financial query generation |
+| `ContextCompressor` | Retrieval Post-processing | MD5 dedup + time-decay scoring + token packing |
+| `HierarchicalMemoryStore` | Multi-tier Vector DB | 5-tier Raw → Persistent Knowledge tiers |
+| `DeltaResearchEngine` | Incremental Indexing | Timestamp diffing, stale embedding detection |
+| `BullAgent / BearAgent / JudgeAgent` | Agentic RAG Orchestration | Adversarial debate on retrieved evidence |
 
 ---
 
@@ -42,41 +59,49 @@
 ```mermaid
 graph TD
     User["User / CLI / REST API"] --> Engine["EquiMindEngine — Master Orchestrator"]
-    Engine --> HybridSearch["1. DB-First Hybrid Search\n(HNSW Vector Store + BM25 Keyword Search)"]
 
-    subgraph Search_Rerank ["2-Stage Hybrid Search & Reranking"]
-        HybridSearch --> RRF["Reciprocal Rank Fusion (RRF)\nDense + Sparse Score Merge (Top 50)"]
-        RRF --> Reranker["CrossEncoderReranker\nDeep Attention Re-scoring (Top 10)"]
+    Engine --> Delta["DeltaResearchEngine\n(Incremental Indexing)"]
+    Engine --> Planner["ReasoningPlanner\n(Dynamic Research Plan)"]
+
+    subgraph Research_Teams ["Live Data Collection (Research Teams)"]
+        MarketTeam["MarketDataTeam\nyfinance → OHLCV, RSI, MACD, BB"]
+        FundTeam["FundamentalTeam\nyfinance + SEC EDGAR → Revenue, ROE, PE"]
+        MacroTeam["MacroTeam\nFRED / World Bank → CPI, GDP, Fed Rate"]
+        WebTeam["WebIntelligenceTeam\nSEC Filings + News RSS + GitHub"]
     end
 
-    Reranker --> Critic{"2. Self-RAG Critic Agent\nIs DB Evidence Sufficient & Recent?"}
+    Planner --> Research_Teams
+    Research_Teams --> RAG_Layer
 
-    %% PATH A: DATA MISSING -> ON-DEMAND LIVE FETCH
-    Critic -- "NO (Missing Context / Low Confidence)" --> TriggerFetch["3. On-Demand Live Fetch"]
-
-    subgraph Two_Core_Sources ["2 Core External Sources"]
-        YFinance["Yahoo Finance API / RSS\n(Prices, RSI, MACD, Financial News)"]
-        SEC["SEC EDGAR API\n(Official 10-K / 10-Q Filings)"]
+    subgraph RAG_Layer ["Agentic RAG Pipeline"]
+        Chunker["FinancialChunker\nParent-Child Partitioning"]
+        Embedder["EmbeddingRouter\nSentenceTransformer / TF-IDF fallback"]
+        Pinecone["PineconeVectorStore\nServerless HNSW — Persistent Cloud Index"]
+        BM25["BM25Index\nIn-session Sparse Retrieval"]
+        RRF["Reciprocal Rank Fusion\nDense + Sparse Score Merge"]
+        Reranker["CrossEncoderReranker\nLatency-budgeted Score Re-ranking"]
+        Critic["RAGCriticAgent\nSelf-RAG Sufficiency Evaluator"]
+        QueryRewriter["QueryRewriter\nMulti-perspective Query Expansion"]
     end
 
-    TriggerFetch --> Two_Core_Sources
-    Two_Core_Sources --> Chunker["4. Parent-Child Financial Chunker\nChild: 200 tokens (Search) | Parent: 800 tokens (LLM)"]
-    Chunker --> Embedder["5. 384-Dim Embedding Generation\n(SentenceTransformer: all-MiniLM-L6-v2)"]
-    Embedder --> VectorDB["6. Ingest into Persistent DB\n(Pinecone Cloud / Local HNSW + BM25)"]
-    VectorDB --> QueryRewriter["7. Query Rewriter\n(Expand multi-perspective sub-queries)"]
-    QueryRewriter --> HybridSearch
+    Chunker --> Embedder --> Pinecone
+    Pinecone --> RRF
+    BM25 --> RRF
+    RRF --> Reranker --> Critic
+    Critic --> QueryRewriter --> Pinecone
 
-    %% PATH B: SUFFICIENT DATA -> DEBATE
-    Critic -- "YES (Sufficient Context)" --> Debate
+    RAG_Layer --> Compressor["ContextCompressor\nDedup + Time-Decay + Token Packing"]
+    Compressor --> Debate
 
-    subgraph Debate ["8. Adversarial Investment Debate"]
-        Bull["BullAgent\n(Optimistic Upside Thesis)"]
-        Bear["BearAgent\n(Pessimistic Risk Thesis)"]
-        Judge["JudgeAgent\n(Evaluates Debate & Evidence Citations)"]
+    subgraph Debate ["Adversarial Investment Committee"]
+        Bull["BullAgent"]
+        Bear["BearAgent"]
+        Judge["JudgeAgent"]
         Bull & Bear --> Judge
     end
 
-    Judge --> Output["9. Structured Recommendation\n(Rating + Conviction Score + Thesis)"]
+    Judge --> Memory["HierarchicalMemoryStore\n5-tier Persistent Knowledge"]
+    Judge --> Output["Structured Recommendation\nRating + Conviction + Thesis"]
 ```
 
 ---
